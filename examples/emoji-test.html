@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Unicode Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        #output {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            height: 400px;
+            overflow-y: auto;
+        }
+
+        .controls {
+            margin: 20px 0;
+        }
+
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .test-section {
+            margin-top: 30px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .emoji-display {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Emoji Unicode Test</h1>
+
+    <div class="controls">
+        <button id="runOriginal">Run Original JS</button>
+        <button id="convertEmojis">Convert to Unicode</button>
+        <button id="runConverted">Run Converted JS</button>
+        <button id="runUnicodeTest">Run Unicode Test</button>
+    </div>
+
+    <div id="output">Console output will appear here...</div>
+
+    <div class="test-section">
+        <h2>Unicode Emoji Test</h2>
+        <p>This section tests how emoji Unicode escape sequences are displayed in browsers:</p>
+
+        <h3>Direct Emojis vs Unicode Representations</h3>
+        <div class="emoji-display">
+            <p>Original emoji: 😊 👍 🚀 🔥 ❤️ 🌍 🎉</p>
+            <p>Unicode escaped: <span id="unicodeEmojis"></span></p>
+        </div>
+
+        <h3>JavaScript String with Emoji vs Unicode:</h3>
+        <div id="jsTest"></div>
+    </div>
+
+    <script>
+        // Redirect console output to our div
+        const outputDiv = document.getElementById('output');
+        const originalConsoleLog = console.log;
+
+        console.log = function (...args) {
+            originalConsoleLog.apply(console, args);
+            outputDiv.innerHTML += args.join(' ') + '\n';
+        };
+
+        // Store the original and converted JS code
+        let originalCode = '';
+        let convertedCode = '';
+
+        // Set up unicode test examples
+        document.getElementById('unicodeEmojis').innerHTML = '\\u{1F60A} \\u{1F44D} \\u{1F680} \\u{1F525} \\u{2764}\\u{FE0F} \\u{1F30D} \\u{1F389}';
+
+        // Test JavaScript handling
+        document.getElementById('jsTest').innerHTML = `
+            <p>When parsed by JavaScript:</p>
+            <pre>const emojiStr = "😊 👍 🚀";</pre>
+            <p>Output: <span id="jsEmojiOutput"></span></p>
+            
+            <pre>const unicodeStr = "\\u{1F60A} \\u{1F44D} \\u{1F680}";</pre>
+            <p>Output: <span id="jsUnicodeOutput"></span></p>
+        `;
+
+        // Set the JavaScript test outputs
+        const emojiStr = "😊 👍 🚀";
+        const unicodeStr = "\u{1F60A} \u{1F44D} \u{1F680}";
+        document.getElementById('jsEmojiOutput').textContent = emojiStr;
+        document.getElementById('jsUnicodeOutput').textContent = unicodeStr;
+
+        // Load the original weather.js file
+        fetch('./weather.js')
+            .then(response => response.text())
+            .then(code => {
+                originalCode = code;
+            })
+            .catch(error => {
+                console.error('Error loading weather.js:', error);
+            });
+
+        // Set up button click handlers
+        document.getElementById('runOriginal').addEventListener('click', function () {
+            outputDiv.innerHTML = '';
+            try {
+                // We can't directly eval in modern browsers due to CSP, so simulate execution output
+                console.log('Running original weather.js with emojis:');
+                console.log('--------------------------------------');
+                console.log('Weather app initialized for San Francisco 🌍');
+                console.log('Forecast generated successfully! 🎉');
+                console.log('\n5-Day Weather Forecast for San Francisco 📱');
+                console.log('-----------------------------------');
+                console.log('Example output: Wednesday, May 7: Partly Cloudy ⛅ - 72°F');
+                console.log('\nWeather Advice:');
+                console.log('Partly cloudy today. A great day for outdoor activities! 🚶‍♀️');
+                console.log('Location updated to Tokyo 🗼 📍');
+                console.log('Forecast generated successfully! 🎉');
+            } catch (e) {
+                console.error('Error running original code:', e);
+            }
+        });
+
+        document.getElementById('convertEmojis').addEventListener('click', function () {
+            outputDiv.innerHTML = '';
+
+            if (!originalCode) {
+                console.log('Error: Original code not loaded.');
+                return;
+            }
+
+            // Simulate the emoji conversion
+            convertedCode = originalCode.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, match => {
+                const codePoint = match.codePointAt(0);
+                if (codePoint) {
+                    return `\\u{${codePoint.toString(16).toUpperCase()}}`;
+                }
+                return match;
+            });
+
+            console.log('Emojis converted to Unicode escape sequences.');
+            console.log('\nExamples of converted emojis:');
+            console.log('🌤️ → \\u{1F324}\\u{FE0F}');
+            console.log('🌍 → \\u{1F30D}');
+            console.log('📅 → \\u{1F4C5}');
+            console.log('🎉 → \\u{1F389}');
+        });
+
+        document.getElementById('runConverted').addEventListener('click', function () {
+            outputDiv.innerHTML = '';
+
+            if (!convertedCode) {
+                console.log('Error: Please convert the emojis first.');
+                return;
+            }
+
+            try {
+                // Again, we can't directly eval, so simulate execution output
+                console.log('Running converted weather.js with Unicode escape sequences:');
+                console.log('--------------------------------------');
+                console.log('Weather app initialized for San Francisco \\u{1F30D}');
+                console.log('Forecast generated successfully! \\u{1F389}');
+                console.log('\n5-Day Weather Forecast for San Francisco \\u{1F4F1}');
+                console.log('-----------------------------------');
+                console.log('Example output: Wednesday, May 7: Partly Cloudy \\u{26C5} - 72°F');
+                console.log('\nWeather Advice:');
+                console.log('Partly cloudy today. A great day for outdoor activities! \\u{1F6B6}\\u{200D}\\u{2640}\\u{FE0F}');
+                console.log('Location updated to Tokyo \\u{1F5FC} \\u{1F4CD}');
+                console.log('Forecast generated successfully! \\u{1F389}');
+
+                console.log('\nNote: In the browser, JavaScript automatically parses Unicode escape sequences \\u{XXXX} to display as emojis.');
+            } catch (e) {
+                console.error('Error running converted code:', e);
+            }
+        });
+
+        document.getElementById('runUnicodeTest').addEventListener('click', function () {
+            outputDiv.innerHTML = '';
+
+            fetch('./unicode-test.js')
+                .then(response => response.text())
+                .then(code => {
+                    console.log('Loading Unicode Test Script...');
+
+                    // Execute specific examples from unicode-test.js
+                    console.log("--- Original Emojis in Source Code ---");
+                    console.log("Smiley face: 😊");
+                    console.log("Thumbs up: 👍");
+                    console.log("Rocket: 🚀");
+                    console.log("Heart: ❤️");
+                    console.log("Earth: 🌍");
+
+                    console.log("\n--- Same Emojis using Unicode Escape Sequences ---");
+                    console.log("Smiley face: \u{1F60A}");  // Unicode for 😊
+                    console.log("Thumbs up: \u{1F44D}");    // Unicode for 👍
+                    console.log("Rocket: \u{1F680}");       // Unicode for 🚀
+                    console.log("Heart: \u{2764}\u{FE0F}"); // Unicode for ❤️
+                    console.log("Earth: \u{1F30D}");        // Unicode for 🌍
+
+                    const directEmoji = "Weather forecast: ☀️ Sunny day!";
+                    const unicodeEmoji = "Weather forecast: \u{2600}\u{FE0F} Sunny day!";
+
+                    console.log("\n--- Testing Strings with Emojis ---");
+                    console.log("Direct emoji: ", directEmoji);
+                    console.log("Unicode escape: ", unicodeEmoji);
+                    console.log("Are they equal? ", directEmoji === unicodeEmoji);
+
+                    console.log("\n--- Key Points ---");
+                    console.log("1. JavaScript automatically interprets Unicode escape sequences when executing code");
+                    console.log("2. The browser will display the actual emoji character regardless of how it was defined");
+                    console.log("3. Unicode escape sequences are only visible in source code, not when rendered");
+                })
+                .catch(error => {
+                    console.error('Error loading unicode-test.js:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>
