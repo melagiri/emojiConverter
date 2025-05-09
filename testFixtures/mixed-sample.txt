@@ -1,0 +1,1 @@
+This file has both emojis 😊 and Unicode escape sequences \u{1F44D}

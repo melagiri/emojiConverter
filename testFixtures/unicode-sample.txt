@@ -1,0 +1,1 @@
+This is a test file with Unicode escape sequences \u{1F60A} \u{1F44D} \u{1F680} \u{2764}\u{FE0F} \u{1F30D}
