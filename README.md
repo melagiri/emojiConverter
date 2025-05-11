@@ -1,6 +1,6 @@
-# Character Format Converter
+# Emoji Converter
 
-A VS Code extension that provides conversion between different character formats, including emojis, Unicode escape sequences, HTML entities, and Markdown shortcodes. This makes it easier for code formatters to process files containing special characters and ensures compatibility across different platforms and languages.
+A VS Code extension that converts emojis to various formats including Unicode escape sequences, HTML entities, and Markdown shortcodes. This makes it easier for code formatters to process files containing emoji characters and ensures compatibility across different platforms and languages.
 
 ## Features
 
@@ -37,34 +37,44 @@ There are multiple ways to use this extension:
 
 1. **Quick Format Selection**:
 
-   - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) and search for "Convert Emoji/Character Format..."
+   - Press `Ctrl+Alt+Q` (or `Cmd+Alt+Q` on macOS) for quick format selection dialog
+   - Or press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) and search for "Convert Emoji Format..."
    - Select your desired target format from the dropdown menu
 
-2. **Command Palette**:
+2. **Context Menu**:
+
+   - Right-click in the editor
+   - Select "Emoji Converter" from the context menu
+   - Choose your desired conversion option
+
+3. **Command Palette**:
 
    - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) and search for any of the conversion commands:
      - "Convert Emojis to Unicode Escape Sequences"
      - "Convert Emojis to HTML Entities"
      - "Convert Emojis to Markdown Shortcodes"
-     - "Convert Unicode Escape Sequences to Emojis"
-     - "Convert HTML Entities to Emojis"
-     - "Convert Markdown Shortcodes to Emojis"
+     - "Convert to Emojis (from any format)"
      - "Toggle Between Emojis and Unicode"
 
-3. **Keyboard Shortcut**:
-   - Press `Ctrl+Alt+E` (or `Cmd+Alt+E` on macOS) to toggle between emojis and Unicode escape sequences
+4. **Keyboard Shortcuts**:
+   - `Ctrl+Alt+U` (`Cmd+Alt+U` on macOS): Convert Emojis to Unicode
+   - `Ctrl+Alt+H` (`Cmd+Alt+H` on macOS): Convert Emojis to HTML Entities
+   - `Ctrl+Alt+M` (`Cmd+Alt+M` on macOS): Convert Emojis to Markdown Shortcodes
+   - `Ctrl+Alt+E` (`Cmd+Alt+E` on macOS): Convert to Emojis (from any format)
+   - `Ctrl+Alt+T` (`Cmd+Alt+T` on macOS): Toggle Between Emojis and Unicode
 
-The extension will scan your current file and perform the selected conversion.
+The extension will apply the conversion to your current selection, or to the entire document if nothing is selected.
 
 ## Format Selection Dialog
 
 The quickest way to use this extension is through the format selection dialog:
 
-1. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS)
-2. Type "Convert Emoji/Character Format..." and press Enter
-3. Select your desired target format from the dropdown menu:
+1. Press `Ctrl+Alt+Q` (or `Cmd+Alt+Q` on macOS)
+2. Select your desired target format from the dropdown menu:
 
-![Format Selection Dialog](https://raw.githubusercontent.com/YOUR_USERNAME/character-format-converter/main/images/format-dialog.png)
+![Format Selection Dialog](https://raw.githubusercontent.com/melagiri/emoji-converter/main/images/format-dialog.png)
+
+This dialog provides options for converting to all supported formats in one convenient place.
 
 ## Why Use This Extension?
 
@@ -88,16 +98,24 @@ This extension does not add any VS Code settings.
 
 - Some rare or complex emoji sequences may not be properly converted
 - Not all emojis have corresponding Markdown shortcodes
-- Please report any issues on the [GitHub repository](https://github.com/YOUR_USERNAME/character-format-converter)
+- Please report any issues on the [GitHub repository](https://github.com/melagiri/emoji-converter)
 
 ## Release Notes
+
+### 3.0.0
+
+- Renamed extension to "Emoji Converter" to better reflect its focus
+- Updated all commands and references for consistency
+- Simplified UI and improved user experience
 
 ### 2.0.0
 
 - Added support for HTML Entity conversion (emojis to/from HTML entities)
 - Added support for Markdown Shortcode conversion (emojis to/from Markdown emoji codes)
-- Added quick format selection menu
-- Improved interface with command palette access only (removed context menu)
+- Added quick format selection menu with keyboard shortcut (Ctrl+Alt+Q / Cmd+Alt+Q)
+- Added context menu entries for all conversion options
+- Improved selection support (converts only selected text if a selection exists)
+- Added progress indicators for large file conversions
 - Renamed extension to "Character Format Converter" to reflect expanded capabilities
 
 ### 1.1.0
@@ -119,28 +137,21 @@ Initial release:
 
 To publish this extension to the VS Code Marketplace:
 
-1. Replace placeholder values in package.json:
+1. Make sure you have updated the following:
 
-   - Replace "YOUR_PUBLISHER_ID" with your actual publisher ID
-   - Replace "YOUR_USERNAME" in the repository URL with your GitHub username
+   - The publisher ID in package.json is set to your actual publisher ID
+   - The repository URL in package.json points to your GitHub repository
+   - The GitHub links in the README point to your repository
 
-2. Replace placeholder in LICENSE:
+2. Create a Personal Access Token (PAT) on Azure DevOps
 
-   - Replace "YOUR_NAME" with your name or organization
-
-3. Update GitHub repository link in README.md:
-
-   - Replace "YOUR_USERNAME" with your GitHub username
-
-4. Create a Personal Access Token (PAT) on Azure DevOps
-
-5. Install the VSCE publishing tool:
+3. Install the VSCE publishing tool:
 
    ```
    npm install -g @vscode/vsce
    ```
 
-6. Package and publish:
+4. Package and publish:
    ```
    vsce package
    vsce publish

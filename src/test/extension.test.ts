@@ -5,7 +5,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import { convertEmojisToUnicode, convertUnicodeToEmojis } from '../extension';
+import { convertEmojisToUnicode, convertUnicodeToEmojis, convertEmojisToHtmlEntities, convertHtmlEntitiesToEmojis, convertEmojisToMarkdown, convertMarkdownToEmojis } from '../extension';
 
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
@@ -90,7 +90,7 @@ function cleanupTestFiles() {
 	}
 }
 
-suite('Emoji to Unicode Converter Extension Tests', () => {
+suite('Emoji Converter Extension Tests', () => {
 	vscode.window.showInformationMessage('Starting emoji converter tests');
 	
 	// Cleanup after tests
@@ -110,7 +110,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(document.getText(), 'console.log("Hello \\u{1F44B}");');
 	});
@@ -120,7 +120,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(document.getText(), 'print("Python loves \\u{1F40D}")');
 	});
@@ -130,7 +130,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(document.getText(), 'puts "Ruby \\u{1F48E}"');
 	});
@@ -140,7 +140,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(document.getText(), 'System.out.println("Java \\u{2615}");');
 	});
@@ -150,7 +150,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(document.getText(), 'Console.WriteLine("C# \\u{1F525}");');
 	});
@@ -160,7 +160,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(document.getText(), 'fmt.Println("Go \\u{1F3C3}")');
 	});
@@ -170,7 +170,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(document.getText(), 'print("Swift \\u{1F985}")');
 	});
@@ -181,7 +181,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(
 			document.getText(), 
@@ -195,7 +195,7 @@ suite('Emoji to Unicode Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojis');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		assert.strictEqual(document.getText(), originalText);
 	});
@@ -226,14 +226,14 @@ suite('Extension Integration Tests', () => {
 		}
 	});
 
-	// Test convertEmojisInEditor command
+	// Test convert Emojis to Unicode command
 	test('Command: Convert Emojis to Unicode in Editor', async () => {
 		// Open the test file
 		const document = await vscode.workspace.openTextDocument(emojiTestUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
 		// Execute the command
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojisInEditor');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		// Check the result
 		const text = editor.document.getText();
@@ -244,14 +244,14 @@ suite('Extension Integration Tests', () => {
 		);
 	});
 
-	// Test convertUnicodeInEditor command
+	// Test convert Unicode to Emojis command
 	test('Command: Convert Unicode to Emojis in Editor', async () => {
 		// Open the test file
 		const document = await vscode.workspace.openTextDocument(unicodeTestUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
 		// Execute the command
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertUnicodeInEditor');
+		await vscode.commands.executeCommand('emoji-converter.convertToEmoji');
 		
 		// Check the result
 		const text = editor.document.getText();
@@ -262,14 +262,14 @@ suite('Extension Integration Tests', () => {
 		);
 	});
 
-	// Test toggleConversionInEditor command on a file with emojis
+	// Test toggleEmojiUnicode command on a file with emojis
 	test('Command: Toggle Conversion (Emoji to Unicode)', async () => {
 		// Open the test file
 		const document = await vscode.workspace.openTextDocument(emojiTestUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
 		// Execute the command
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.toggleConversionInEditor');
+		await vscode.commands.executeCommand('emoji-converter.toggleEmojiUnicode');
 		
 		// Check the result
 		const text = editor.document.getText();
@@ -280,14 +280,14 @@ suite('Extension Integration Tests', () => {
 		);
 	});
 
-	// Test toggleConversionInEditor command on a file with Unicode
+	// Test toggleEmojiUnicode command on a file with Unicode
 	test('Command: Toggle Conversion (Unicode to Emoji)', async () => {
 		// Open the test file
 		const document = await vscode.workspace.openTextDocument(unicodeTestUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
 		// Execute the command
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.toggleConversionInEditor');
+		await vscode.commands.executeCommand('emoji-converter.toggleEmojiUnicode');
 		
 		// Check the result
 		const text = editor.document.getText();
@@ -305,7 +305,7 @@ suite('Extension Integration Tests', () => {
 		const editor = await vscode.window.showTextDocument(document);
 		
 		// Execute the command to convert to Unicode first
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertEmojisInEditor');
+		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
 		// Check that emoji was converted to Unicode
 		let text = editor.document.getText();
@@ -316,7 +316,7 @@ suite('Extension Integration Tests', () => {
 		);
 		
 		// Now convert Unicode to emoji
-		await vscode.commands.executeCommand('emoji-to-unicode-converter.convertUnicodeInEditor');
+		await vscode.commands.executeCommand('emoji-converter.convertToEmoji');
 		
 		// Check that Unicode was converted to emoji
 		text = editor.document.getText();

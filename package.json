@@ -1,14 +1,14 @@
 {
-  "name": "character-format-converter",
-  "displayName": "Character Format Converter",
+  "name": "emoji-converter",
+  "displayName": "Emoji Converter",
   "description": "Convert between emojis, Unicode escape sequences, HTML entities, and Markdown shortcodes",
-  "version": "2.0.0",
-  "publisher": "YOUR_PUBLISHER_ID",
+  "version": "3.0.0",
+  "publisher": "melagiri",
   "icon": "images/icon.png",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/character-format-converter"
+    "url": "https://github.com/melagiri/emoji-converter"
   },
   "engines": {
     "vscode": "^1.100.0",
@@ -34,46 +34,106 @@
   "contributes": {
     "commands": [
       {
-        "command": "emoji-to-unicode-converter.convertEmojiToUnicode",
+        "command": "emoji-converter.quickFormatSelection",
+        "title": "Convert Emoji Format..."
+      },
+      {
+        "command": "emoji-converter.convertEmojiToUnicode",
         "title": "Convert Emojis to Unicode Escape Sequences"
       },
       {
-        "command": "emoji-to-unicode-converter.convertEmojiToHtml",
+        "command": "emoji-converter.convertEmojiToHtml",
         "title": "Convert Emojis to HTML Entities"
       },
       {
-        "command": "emoji-to-unicode-converter.convertEmojiToMarkdown",
+        "command": "emoji-converter.convertEmojiToMarkdown",
         "title": "Convert Emojis to Markdown Shortcodes"
       },
       {
-        "command": "emoji-to-unicode-converter.convertToEmoji",
+        "command": "emoji-converter.convertToEmoji",
         "title": "Convert to Emojis (from any format)"
+      },
+      {
+        "command": "emoji-converter.toggleEmojiUnicode",
+        "title": "Toggle Between Emojis and Unicode"
       }
     ],
     "keybindings": [
       {
-        "command": "emoji-to-unicode-converter.convertEmojiToUnicode",
+        "command": "emoji-converter.quickFormatSelection",
+        "key": "ctrl+alt+q",
+        "mac": "cmd+alt+q",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "emoji-converter.convertEmojiToUnicode",
         "key": "ctrl+alt+u",
         "mac": "cmd+alt+u",
         "when": "editorTextFocus"
       },
       {
-        "command": "emoji-to-unicode-converter.convertEmojiToHtml",
+        "command": "emoji-converter.convertEmojiToHtml",
         "key": "ctrl+alt+h",
         "mac": "cmd+alt+h",
         "when": "editorTextFocus"
       },
       {
-        "command": "emoji-to-unicode-converter.convertEmojiToMarkdown",
+        "command": "emoji-converter.convertEmojiToMarkdown",
         "key": "ctrl+alt+m",
         "mac": "cmd+alt+m",
         "when": "editorTextFocus"
       },
       {
-        "command": "emoji-to-unicode-converter.convertToEmoji",
+        "command": "emoji-converter.convertToEmoji",
         "key": "ctrl+alt+e",
         "mac": "cmd+alt+e",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "emoji-converter.toggleEmojiUnicode",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "editorTextFocus"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "emoji-converter.formatSubMenu",
+          "group": "z_commands"
+        }
+      ],
+      "emoji-converter.formatSubMenu": [
+        {
+          "command": "emoji-converter.quickFormatSelection",
+          "group": "1_conversion"
+        },
+        {
+          "command": "emoji-converter.convertEmojiToUnicode",
+          "group": "2_conversion"
+        },
+        {
+          "command": "emoji-converter.convertEmojiToHtml",
+          "group": "2_conversion"
+        },
+        {
+          "command": "emoji-converter.convertEmojiToMarkdown",
+          "group": "2_conversion"
+        },
+        {
+          "command": "emoji-converter.convertToEmoji",
+          "group": "3_conversion"
+        },
+        {
+          "command": "emoji-converter.toggleEmojiUnicode",
+          "group": "3_conversion"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "emoji-converter.formatSubMenu",
+        "label": "Emoji Converter"
       }
     ]
   },

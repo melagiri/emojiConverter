@@ -1,10 +1,18 @@
 # Change Log
 
-All notable changes to the "character-format-converter" extension will be documented in this file.
+All notable changes to the "emoji-converter" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [2.0.0] - 2025-05-11
+## [3.0.0] - 2025-05-11
+
+### Changed
+
+- Renamed extension to "Emoji Converter" to better reflect its focus on emoji conversion
+- Updated all command references for consistency
+- Improved code organization and error handling
+
+## [2.0.0] - 2025-05-10
 
 ### Added
 
