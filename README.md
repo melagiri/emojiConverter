@@ -113,28 +113,4 @@ This extension does not add any VS Code settings.
 - Selection-based or full document conversion
 - Progress indicators for large file conversions
 
-## Publishing
-
-To publish this extension to the VS Code Marketplace:
-
-1. Make sure you have updated the following:
-
-   - The publisher ID in package.json is set to your actual publisher ID
-   - The repository URL in package.json points to your GitHub repository
-   - The GitHub links in the README point to your repository
-
-2. Create a Personal Access Token (PAT) on [Azure DevOps](https://dev.azure.com/vscode)
-
-3. Install the VSCE publishing tool:
-
-   ```
-   npm install -g @vscode/vsce
-   ```
-
-4. Package and publish:
-   ```
-   vsce package
-   vsce publish
-   ```
-
 **Enjoy!**

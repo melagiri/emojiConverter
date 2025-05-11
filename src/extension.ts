@@ -111,10 +111,6 @@ const emojiToMarkdownMap: Map<string, string> = new Map([
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "emoji-converter" is now active!');
-
 	// Register the quick format selection command
 	const quickFormatCommand = vscode.commands.registerCommand('emoji-converter.quickFormatSelection', async () => {
 		const editor = vscode.window.activeTextEditor;

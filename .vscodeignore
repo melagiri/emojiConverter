@@ -15,5 +15,16 @@ vsc-extension-quickstart.md
 examples/**
 testFixtures/**
 images/icon.svg
+images/format-dialog.svg
 node_modules/**
 .eslintrc.json
+src/test/**
+out/test/**
+CHANGELOG.md
+.eslintignore
+**/manualTest.js
+**/runTest.js
+**/testUtils.ts
+**/unit.test.ts
+**/extension.test.ts
+.ruby-lsp/
