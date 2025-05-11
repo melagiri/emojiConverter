@@ -1,8 +1,29 @@
 # Change Log
 
-All notable changes to the "emoji-to-unicode-converter" extension will be documented in this file.
+All notable changes to the "character-format-converter" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+
+## [2.0.0] - 2025-05-11
+
+### Added
+
+- Expanded format support with new conversions:
+  - HTML Entity conversion (emojis to/from HTML entities)
+  - Markdown Shortcode conversion (emojis to/from Markdown emoji codes)
+- Quick format selection menu for choosing target format
+- Enhanced documentation covering all formats
+
+### Changed
+
+- Renamed extension to "Character Format Converter" to reflect expanded capabilities
+- Improved UI with simplified access - removed context menu entries
+- Restructured codebase to support multiple format conversions
+
+### Removed
+
+- Removed all context menu entries to simplify the UI
+- Users can now access all functionality via keyboard shortcut or command palette
 
 ## [1.1.0] - 2025-05-09
 
@@ -12,8 +33,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - New commands:
   - "Convert Unicode Escape Sequences to Emojis" - converts Unicode to emojis
   - "Toggle Between Emojis and Unicode" - intelligently toggles between emoji and Unicode formats
-- Context menu entries for all new commands
 - Unit tests for bidirectional conversion
+- Keyboard shortcut (Ctrl+Alt+E / Cmd+Alt+E) for toggling between emojis and Unicode
 
 ### Changed
 

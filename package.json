@@ -1,63 +1,81 @@
 {
-  "name": "emoji-to-unicode-converter",
-  "displayName": "Emoji and Unicode Converter",
-  "description": "Converts between emoji characters and Unicode escape sequences for better code formatting",
-  "version": "1.1.0",
+  "name": "character-format-converter",
+  "displayName": "Character Format Converter",
+  "description": "Convert between emojis, Unicode escape sequences, HTML entities, and Markdown shortcodes",
+  "version": "2.0.0",
+  "publisher": "YOUR_PUBLISHER_ID",
+  "icon": "images/icon.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/character-format-converter"
+  },
   "engines": {
     "vscode": "^1.100.0",
     "node": "^16.0.0"
   },
   "categories": [
+    "Formatters",
     "Other"
+  ],
+  "keywords": [
+    "emoji",
+    "unicode",
+    "html entities",
+    "markdown",
+    "converter",
+    "formatter",
+    "character",
+    "text",
+    "shortcode"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "emoji-to-unicode-converter.convertEmojis",
+        "command": "emoji-to-unicode-converter.convertEmojiToUnicode",
         "title": "Convert Emojis to Unicode Escape Sequences"
       },
       {
-        "command": "emoji-to-unicode-converter.convertEmojisInEditor",
-        "title": "Convert Emojis to Unicode Escape Sequences"
+        "command": "emoji-to-unicode-converter.convertEmojiToHtml",
+        "title": "Convert Emojis to HTML Entities"
       },
       {
-        "command": "emoji-to-unicode-converter.convertUnicode",
-        "title": "Convert Unicode Escape Sequences to Emojis"
+        "command": "emoji-to-unicode-converter.convertEmojiToMarkdown",
+        "title": "Convert Emojis to Markdown Shortcodes"
       },
       {
-        "command": "emoji-to-unicode-converter.convertUnicodeInEditor",
-        "title": "Convert Unicode Escape Sequences to Emojis"
-      },
-      {
-        "command": "emoji-to-unicode-converter.toggleConversion",
-        "title": "Toggle Between Emojis and Unicode"
-      },
-      {
-        "command": "emoji-to-unicode-converter.toggleConversionInEditor",
-        "title": "Toggle Between Emojis and Unicode"
+        "command": "emoji-to-unicode-converter.convertToEmoji",
+        "title": "Convert to Emojis (from any format)"
       }
     ],
-    "menus": {
-      "editor/context": [
-        {
-          "command": "emoji-to-unicode-converter.convertEmojisInEditor",
-          "group": "modification",
-          "when": "editorTextFocus"
-        },
-        {
-          "command": "emoji-to-unicode-converter.convertUnicodeInEditor",
-          "group": "modification",
-          "when": "editorTextFocus"
-        },
-        {
-          "command": "emoji-to-unicode-converter.toggleConversionInEditor",
-          "group": "modification",
-          "when": "editorTextFocus"
-        }
-      ]
-    }
+    "keybindings": [
+      {
+        "command": "emoji-to-unicode-converter.convertEmojiToUnicode",
+        "key": "ctrl+alt+u",
+        "mac": "cmd+alt+u",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "emoji-to-unicode-converter.convertEmojiToHtml",
+        "key": "ctrl+alt+h",
+        "mac": "cmd+alt+h",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "emoji-to-unicode-converter.convertEmojiToMarkdown",
+        "key": "ctrl+alt+m",
+        "mac": "cmd+alt+m",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "emoji-to-unicode-converter.convertToEmoji",
+        "key": "ctrl+alt+e",
+        "mac": "cmd+alt+e",
+        "when": "editorTextFocus"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -65,7 +83,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/extension.test.js"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
