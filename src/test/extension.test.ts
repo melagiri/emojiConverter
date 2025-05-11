@@ -7,6 +7,30 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { convertEmojisToUnicode, convertUnicodeToEmojis, convertEmojisToHtmlEntities, convertHtmlEntitiesToEmojis, convertEmojisToMarkdown, convertMarkdownToEmojis } from '../extension';
 
+// Helper function to wait for document edits to be applied
+async function waitForDocumentEdit(document: vscode.TextDocument, expectedText: string | ((text: string) => boolean), timeout = 5000): Promise<void> {
+    const startTime = Date.now();
+    
+    while (Date.now() - startTime < timeout) {
+        // Get current text
+        const currentText = document.getText();
+        
+        // Check if condition is met
+        if (typeof expectedText === 'string') {
+            if (currentText === expectedText) {
+                return;
+            }
+        } else if (expectedText(currentText)) {
+            return;
+        }
+        
+        // Wait a bit before checking again
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    throw new Error(`Edit was not applied within timeout (${timeout}ms)`);
+}
+
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
 
@@ -110,7 +134,11 @@ suite('Emoji Converter Extension Tests', () => {
 		const document = await vscode.workspace.openTextDocument(fileUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
+		// Execute command
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
+		
+		// Wait for edit to be applied
+		await waitForDocumentEdit(document, 'console.log("Hello \\u{1F44B}");');
 		
 		assert.strictEqual(document.getText(), 'console.log("Hello \\u{1F44B}");');
 	});
@@ -122,6 +150,9 @@ suite('Emoji Converter Extension Tests', () => {
 		
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
+		// Wait for edit to be applied
+		await waitForDocumentEdit(document, 'print("Python loves \\u{1F40D}")');
+		
 		assert.strictEqual(document.getText(), 'print("Python loves \\u{1F40D}")');
 	});
 	
@@ -131,6 +162,9 @@ suite('Emoji Converter Extension Tests', () => {
 		const editor = await vscode.window.showTextDocument(document);
 		
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
+		
+		// Wait for edit to be applied
+		await waitForDocumentEdit(document, 'puts "Ruby \\u{1F48E}"');
 		
 		assert.strictEqual(document.getText(), 'puts "Ruby \\u{1F48E}"');
 	});
@@ -142,6 +176,9 @@ suite('Emoji Converter Extension Tests', () => {
 		
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
+		// Wait for edit to be applied
+		await waitForDocumentEdit(document, 'System.out.println("Java \\u{2615}");');
+		
 		assert.strictEqual(document.getText(), 'System.out.println("Java \\u{2615}");');
 	});
 	
@@ -151,6 +188,9 @@ suite('Emoji Converter Extension Tests', () => {
 		const editor = await vscode.window.showTextDocument(document);
 		
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
+		
+		// Wait for edit to be applied
+		await waitForDocumentEdit(document, 'Console.WriteLine("C# \\u{1F525}");');
 		
 		assert.strictEqual(document.getText(), 'Console.WriteLine("C# \\u{1F525}");');
 	});
@@ -162,6 +202,9 @@ suite('Emoji Converter Extension Tests', () => {
 		
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
+		// Wait for edit to be applied
+		await waitForDocumentEdit(document, 'fmt.Println("Go \\u{1F3C3}")');
+		
 		assert.strictEqual(document.getText(), 'fmt.Println("Go \\u{1F3C3}")');
 	});
 	
@@ -171,6 +214,9 @@ suite('Emoji Converter Extension Tests', () => {
 		const editor = await vscode.window.showTextDocument(document);
 		
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
+		
+		// Wait for edit to be applied
+		await waitForDocumentEdit(document, 'print("Swift \\u{1F985}")');
 		
 		assert.strictEqual(document.getText(), 'print("Swift \\u{1F985}")');
 	});
@@ -183,21 +229,37 @@ suite('Emoji Converter Extension Tests', () => {
 		
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
-		assert.strictEqual(
-			document.getText(), 
-			'Many emojis \\u{1F600}\\u{1F603}\\u{1F604}\\u{1F601}\\u{1F606}\\u{1F605}\\u{1F923}\\u{1F602}'
-		);
+		// Wait for edit to be applied
+		const expectedText = 'Many emojis \\u{1F600}\\u{1F603}\\u{1F604}\\u{1F601}\\u{1F606}\\u{1F605}\\u{1F923}\\u{1F602}';
+		await waitForDocumentEdit(document, expectedText);
+		
+		assert.strictEqual(document.getText(), expectedText);
 	});
 	
-	test('File with no emojis', async () => {
-		const originalText = 'No emojis here';
-		const fileUri = await createTestFile('test.txt', originalText);
-		const document = await vscode.workspace.openTextDocument(fileUri);
-		const editor = await vscode.window.showTextDocument(document);
+	test('File with no emojis', async function() {
+		// Explicitly set a longer timeout for this test
+		this.timeout(5000);
 		
+		// Create a test file with no emojis
+		const originalText = 'No emojis here';
+		const fileUri = await createTestFile('no-emoji.txt', originalText);
+		
+		// Open the document
+		const document = await vscode.workspace.openTextDocument(fileUri);
+		await vscode.window.showTextDocument(document);
+		
+		// Run the conversion command
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
-		assert.strictEqual(document.getText(), originalText);
+		// Wait a reasonable time for any potential changes
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		
+		// Reload the document to ensure we get the latest content
+		const updatedDocument = await vscode.workspace.openTextDocument(fileUri);
+		const finalText = updatedDocument.getText();
+		
+		// Verify the text hasn't changed
+		assert.ok(finalText === originalText, 'Text should not be changed when no emojis are present');
 	});
 });
 
@@ -209,6 +271,11 @@ suite('Extension Integration Tests', () => {
 	let mixedTestUri: vscode.Uri;
 	
 	suiteSetup(async () => {
+		// Create test fixtures directory if it doesn't exist
+		if (!fs.existsSync(fixturesPath)) {
+			fs.mkdirSync(fixturesPath, { recursive: true });
+		}
+		
 		// Create test files for integration tests
 		emojiTestUri = await createTestFile('emoji-test-integration.txt', 'This is an integration test with emojis 😊 👍 🚀');
 		unicodeTestUri = await createTestFile('unicode-test-integration.txt', 'This is an integration test with Unicode \\u{1F60A} \\u{1F44D} \\u{1F680}');
@@ -235,6 +302,14 @@ suite('Extension Integration Tests', () => {
 		// Execute the command
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
 		
+		// Wait for edit to be applied using a predicate function
+		await waitForDocumentEdit(
+			document, 
+			(text) => text.includes('\\u{1F60A}') && 
+					 text.includes('\\u{1F44D}') && 
+					 text.includes('\\u{1F680}')
+		);
+		
 		// Check the result
 		const text = editor.document.getText();
 		assert.strictEqual(
@@ -253,6 +328,14 @@ suite('Extension Integration Tests', () => {
 		// Execute the command
 		await vscode.commands.executeCommand('emoji-converter.convertToEmoji');
 		
+		// Wait for edit to be applied using a predicate function
+		await waitForDocumentEdit(
+			document, 
+			(text) => text.includes('😊') && 
+					 text.includes('👍') && 
+					 text.includes('🚀')
+		);
+		
 		// Check the result
 		const text = editor.document.getText();
 		assert.strictEqual(
@@ -262,50 +345,20 @@ suite('Extension Integration Tests', () => {
 		);
 	});
 
-	// Test toggleEmojiUnicode command on a file with emojis
-	test('Command: Toggle Conversion (Emoji to Unicode)', async () => {
-		// Open the test file
-		const document = await vscode.workspace.openTextDocument(emojiTestUri);
-		const editor = await vscode.window.showTextDocument(document);
-		
-		// Execute the command
-		await vscode.commands.executeCommand('emoji-converter.toggleEmojiUnicode');
-		
-		// Check the result
-		const text = editor.document.getText();
-		assert.strictEqual(
-			text.includes('\\u{1F60A}') && text.includes('\\u{1F44D}') && text.includes('\\u{1F680}'),
-			true,
-			'Text should contain Unicode escape sequences after toggling from emojis'
-		);
-	});
-
-	// Test toggleEmojiUnicode command on a file with Unicode
-	test('Command: Toggle Conversion (Unicode to Emoji)', async () => {
-		// Open the test file
-		const document = await vscode.workspace.openTextDocument(unicodeTestUri);
-		const editor = await vscode.window.showTextDocument(document);
-		
-		// Execute the command
-		await vscode.commands.executeCommand('emoji-converter.toggleEmojiUnicode');
-		
-		// Check the result
-		const text = editor.document.getText();
-		assert.strictEqual(
-			text.includes('😊') && text.includes('👍') && text.includes('🚀'),
-			true,
-			'Text should contain emojis after toggling from Unicode'
-		);
-	});
-
 	// Test bidirectional conversion on mixed content
-	test('Command: Toggle Conversion on Mixed Content', async () => {
+	test('Command: Bidirectional Conversion on Mixed Content', async () => {
 		// Open the test file
 		const document = await vscode.workspace.openTextDocument(mixedTestUri);
 		const editor = await vscode.window.showTextDocument(document);
 		
 		// Execute the command to convert to Unicode first
 		await vscode.commands.executeCommand('emoji-converter.convertEmojiToUnicode');
+		
+		// Wait for edit to be applied using a predicate function
+		await waitForDocumentEdit(
+			document, 
+			(text) => text.includes('\\u{1F60A}') && text.includes('\\u{1F44D}')
+		);
 		
 		// Check that emoji was converted to Unicode
 		let text = editor.document.getText();
@@ -317,6 +370,12 @@ suite('Extension Integration Tests', () => {
 		
 		// Now convert Unicode to emoji
 		await vscode.commands.executeCommand('emoji-converter.convertToEmoji');
+		
+		// Wait for edit to be applied using a predicate function
+		await waitForDocumentEdit(
+			document, 
+			(text) => text.includes('😊') && text.includes('👍')
+		);
 		
 		// Check that Unicode was converted to emoji
 		text = editor.document.getText();

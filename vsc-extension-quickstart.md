@@ -22,7 +22,7 @@
 * You can also reload (`Ctrl+R` or `Cmd+R` on Mac) the VS Code window with your extension to load your changes.
 
 ## Explore the API
-
+code
 * You can open the full set of our API when you open the file `node_modules/@types/vscode/index.d.ts`.
 
 ## Run tests

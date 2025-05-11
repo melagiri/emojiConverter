@@ -2,7 +2,7 @@
   "name": "emoji-converter",
   "displayName": "Emoji Converter",
   "description": "Convert between emojis, Unicode escape sequences, HTML entities, and Markdown shortcodes",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "publisher": "melagiri",
   "icon": "images/icon.png",
   "license": "MIT",
@@ -52,10 +52,6 @@
       {
         "command": "emoji-converter.convertToEmoji",
         "title": "Convert to Emojis (from any format)"
-      },
-      {
-        "command": "emoji-converter.toggleEmojiUnicode",
-        "title": "Toggle Between Emojis and Unicode"
       }
     ],
     "keybindings": [
@@ -88,12 +84,6 @@
         "key": "ctrl+alt+e",
         "mac": "cmd+alt+e",
         "when": "editorTextFocus"
-      },
-      {
-        "command": "emoji-converter.toggleEmojiUnicode",
-        "key": "ctrl+alt+t",
-        "mac": "cmd+alt+t",
-        "when": "editorTextFocus"
       }
     ],
     "menus": {
@@ -123,10 +113,6 @@
         {
           "command": "emoji-converter.convertToEmoji",
           "group": "3_conversion"
-        },
-        {
-          "command": "emoji-converter.toggleEmojiUnicode",
-          "group": "3_conversion"
         }
       ]
     },
@@ -143,7 +129,9 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "node ./out/test/extension.test.js"
+    "test": "node ./out/test/extension.test.js",
+    "test:integration": "vscode-test",
+    "package": "vsce package"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -153,6 +141,7 @@
     "@typescript-eslint/parser": "^8.31.1",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^2.32.0",
     "eslint": "^9.25.1",
     "glob": "^11.0.2",
     "typescript": "^5.8.3"

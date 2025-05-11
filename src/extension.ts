@@ -189,7 +189,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	// Register the command to convert any format to emojis (Ctrl+Alt+E)
+	// Register the command to convert Unicode/HTML/Markdown to emojis (Ctrl+Alt+E)
 	const convertToEmojiCommand = vscode.commands.registerCommand('emoji-converter.convertToEmoji', () => {
 		const editor = vscode.window.activeTextEditor;
 		if (editor) {
@@ -200,46 +200,12 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
-	// Register the toggle command
-	const toggleEmojiUnicodeCommand = vscode.commands.registerCommand('emoji-converter.toggleEmojiUnicode', () => {
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) {
-			vscode.window.showWarningMessage('No active editor found');
-			return;
-		}
-
-		// Get the current selection or entire document text
-		const document = editor.document;
-		const selection = editor.selection;
-		const text = selection.isEmpty 
-			? document.getText() 
-			: document.getText(selection);
-
-		// Check if the text contains any emoji character
-		const containsEmoji = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu.test(text);
-
-		// Check if the text contains any Unicode escape sequence
-		const containsUnicode = /\\u\{([0-9A-Fa-f]+)\}/g.test(text);
-
-		// Toggle based on content
-		if (containsEmoji) {
-			convertEmojisToUnicodeInEditor(editor);
-			vscode.window.showInformationMessage('Emojis converted to Unicode escape sequences');
-		} else if (containsUnicode) {
-			convertUnicodeToEmojisInEditor(editor);
-			vscode.window.showInformationMessage('Unicode escape sequences converted to emojis');
-		} else {
-			vscode.window.showInformationMessage('No emojis or Unicode escape sequences found');
-		}
-	});
-
 	// Register all commands
 	context.subscriptions.push(quickFormatCommand);
 	context.subscriptions.push(convertEmojiToUnicodeCommand);
 	context.subscriptions.push(convertEmojiToHtmlCommand);
 	context.subscriptions.push(convertEmojiToMarkdownCommand);
 	context.subscriptions.push(convertToEmojiCommand);
-	context.subscriptions.push(toggleEmojiUnicodeCommand);
 }
 
 /**

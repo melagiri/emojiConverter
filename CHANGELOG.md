@@ -4,52 +4,27 @@ All notable changes to the "emoji-converter" extension will be documented in thi
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [3.0.0] - 2025-05-11
+## [1.0.0] - 2025-05-11 - Initial release
 
-### Changed
+### Features
 
-- Renamed extension to "Emoji Converter" to better reflect its focus on emoji conversion
-- Updated all command references for consistency
-- Improved code organization and error handling
+- Multiple format conversion options:
+  - Convert emoji characters to Unicode escape sequences (💬 → \u{1F4AC})
+  - Convert emoji characters to HTML entities (💬 → &#128172;)
+  - Convert emoji characters to Markdown shortcodes (💬 → :speech_balloon:)
+  - Convert back from any format to emoji characters
 
-## [2.0.0] - 2025-05-10
+### Accessibility
 
-### Added
+- Quick format selection menu (Ctrl+Alt+Q / Cmd+Alt+Q)
+- Full keyboard shortcut support:
+  - Ctrl+Alt+U / Cmd+Alt+U: Convert to Unicode
+  - Ctrl+Alt+H / Cmd+Alt+H: Convert to HTML entities
+  - Ctrl+Alt+M / Cmd+Alt+M: Convert to Markdown shortcodes
+  - Ctrl+Alt+E / Cmd+Alt+E: Convert to emojis
 
-- Expanded format support with new conversions:
-  - HTML Entity conversion (emojis to/from HTML entities)
-  - Markdown Shortcode conversion (emojis to/from Markdown emoji codes)
-- Quick format selection menu for choosing target format
-- Enhanced documentation covering all formats
+### Integration
 
-### Changed
-
-- Renamed extension to "Character Format Converter" to reflect expanded capabilities
-- Improved UI with simplified access - removed context menu entries
-- Restructured codebase to support multiple format conversions
-
-### Removed
-
-- Removed all context menu entries to simplify the UI
-- Users can now access all functionality via keyboard shortcut or command palette
-
-## [1.1.0] - 2025-05-09
-
-### Added
-
-- Bidirectional conversion: added ability to convert Unicode escape sequences back to emoji characters
-- New commands:
-  - "Convert Unicode Escape Sequences to Emojis" - converts Unicode to emojis
-  - "Toggle Between Emojis and Unicode" - intelligently toggles between emoji and Unicode formats
-- Unit tests for bidirectional conversion
-- Keyboard shortcut (Ctrl+Alt+E / Cmd+Alt+E) for toggling between emojis and Unicode
-
-### Changed
-
-- Improved documentation to cover bidirectional functionality
-- Updated extension name to "Emoji and Unicode Converter" to better reflect capabilities
-
-## [1.0.0] - Initial release
-
-- Converts emoji characters to Unicode escape sequences
-- Available via command palette and editor context menu
+- Editor context menu with all conversion options
+- Command palette access for all features
+- Support for selection-based or full document conversion
