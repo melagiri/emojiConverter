@@ -1,131 +1,22 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-
-// Emoji to Markdown shortcode mapping
-const emojiToMarkdownMap: Map<string, string> = new Map([
-['😀', ':grinning:'],
-['😃', ':smiley:'],
-['😄', ':smile:'],
-['😁', ':grin:'],
-['😆', ':laughing:'],
-['😅', ':sweat_smile:'],
-['🤣', ':rofl:'],
-['😂', ':joy:'],
-['🙂', ':slightly_smiling_face:'],
-['🙃', ':upside_down_face:'],
-['😉', ':wink:'],
-['😊', ':blush:'],
-['😇', ':innocent:'],
-['😍', ':heart_eyes:'],
-['🥰', ':smiling_face_with_three_hearts:'],
-['😘', ':kissing_heart:'],
-['😗', ':kissing:'],
-['☺️', ':relaxed:'],
-['😚', ':kissing_closed_eyes:'],
-['😙', ':kissing_smiling_eyes:'],
-['🥲', ':smiling_face_with_tear:'],
-['😋', ':yum:'],
-['😛', ':stuck_out_tongue:'],
-['😜', ':stuck_out_tongue_winking_eye:'],
-['🤪', ':zany_face:'],
-['😝', ':stuck_out_tongue_closed_eyes:'],
-['🤑', ':money_mouth_face:'],
-['🤗', ':hugs:'],
-['🤭', ':hand_over_mouth:'],
-['🤫', ':shushing_face:'],
-['🤔', ':thinking:'],
-['🤐', ':zipper_mouth_face:'],
-['🤨', ':raised_eyebrow:'],
-['😐', ':neutral_face:'],
-['😑', ':expressionless:'],
-['😶', ':no_mouth:'],
-['😏', ':smirk:'],
-['😒', ':unamused:'],
-['🙄', ':roll_eyes:'],
-['😬', ':grimacing:'],
-['🤥', ':lying_face:'],
-['😌', ':relieved:'],
-['😔', ':pensive:'],
-['😪', ':sleepy:'],
-['🤤', ':drooling_face:'],
-['😴', ':sleeping:'],
-['😷', ':mask:'],
-['🤒', ':face_with_thermometer:'],
-['🤕', ':face_with_head_bandage:'],
-['🤢', ':nauseated_face:'],
-['🤮', ':vomiting_face:'],
-['🤧', ':sneezing_face:'],
-['🥵', ':hot_face:'],
-['🥶', ':cold_face:'],
-['🥴', ':woozy_face:'],
-['😵', ':dizzy_face:'],
-['🤯', ':exploding_head:'],
-['🤠', ':cowboy_hat_face:'],
-['🥳', ':partying_face:'],
-['🥸', ':disguised_face:'],
-['😎', ':sunglasses:'],
-['🤓', ':nerd_face:'],
-['🧐', ':monocle_face:'],
-['😕', ':confused:'],
-['😟', ':worried:'],
-['🙁', ':slightly_frowning_face:'],
-['☹️', ':frowning_face:'],
-['😮', ':open_mouth:'],
-['😯', ':hushed:'],
-['😲', ':astonished:'],
-['😳', ':flushed:'],
-['🥺', ':pleading_face:'],
-['😦', ':frowning:'],
-['😧', ':anguished:'],
-['😨', ':fearful:'],
-['😰', ':cold_sweat:'],
-['😥', ':disappointed_relieved:'],
-['😢', ':cry:'],
-['😭', ':sob:'],
-['😱', ':scream:'],
-['😖', ':confounded:'],
-['😣', ':persevere:'],
-['😞', ':disappointed:'],
-['😓', ':sweat:'],
-['😩', ':weary:'],
-['😫', ':tired_face:'],
-['🥱', ':yawning_face:'],
-['😤', ':triumph:'],
-['😡', ':rage:'],
-['😠', ':angry:'],
-['🤬', ':cursing_face:'],
-['👍', ':thumbsup:'],
-['👎', ':thumbsdown:'],
-['❤️', ':heart:'],
-['🔥', ':fire:'],
-['🚀', ':rocket:'],
-['⭐', ':star:'],
-['✅', ':white_check_mark:'],
-['❌', ':x:'],
-['🌍', ':earth_africa:'],
-['🎉', ':tada:'],
-]);
-
-// Global regex patterns for better performance (avoid recompilation)
-const regexPatterns = {
-	emoji: /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
-	unicode: /\\u\{([0-9A-Fa-f]+)\}/g,
-	html: /&#(\d+);/g,
-	markdown: /:([\w_]+):/g
-};
-
-// Create a reverse mapping (Markdown → Emoji) for faster lookups
-const markdownToEmojiMap: Map<string, string> = new Map();
+import {
+  convertEmojisToUnicode,
+  convertUnicodeToEmojis,
+  convertEmojisToHtmlEntities,
+  convertHtmlEntitiesToEmojis,
+  convertEmojisToMarkdown,
+  convertMarkdownToEmojis,
+  composeConversions,
+  emojiToMarkdownMap,
+  markdownToEmojiMap,
+  regexPatterns
+} from './conversion';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    // Initialize the reverse mapping
-    emojiToMarkdownMap.forEach((value, key) => {
-        markdownToEmojiMap.set(value.replace(/:/g, ''), key);
-    });
-
     // Register the quick format selection command
     const quickFormatCommand = vscode.commands.registerCommand('emoji-converter.quickFormatSelection', async () => {
         const editor = vscode.window.activeTextEditor;
@@ -426,18 +317,6 @@ function convertAllToEmojisInEditor(editor: vscode.TextEditor) {
 }
 
 /**
- * Composes multiple conversion functions into a single function
- * for more efficient processing of text with multiple format transformations
- * @param conversionFns Array of conversion functions to apply in sequence
- * @returns A single conversion function that applies all transformations
- */
-function composeConversions(...conversionFns: Array<(text: string) => string>): (text: string) => string {
-	return (text: string) => {
-		return conversionFns.reduce((result, fn) => fn(result), text);
-	};
-}
-
-/**
  * Converts any format to Unicode escape sequences
  * First converts any format to emojis, then converts emojis to Unicode
  * @param editor The active text editor
@@ -677,122 +556,6 @@ function detectTextFormat(text: string): TextFormat {
 	
 	// Default to assuming it's plain text (treated as Emoji for conversion purposes)
 	return TextFormat.Emoji;
-}
-
-/**
- * Converts emoji characters to Unicode escape sequences
- * @param text The text containing emoji characters
- * @returns Text with emojis converted to Unicode escape sequences
- */
-export function convertEmojisToUnicode(text: string): string {
-	// Cache for previously converted emojis to improve performance
-	const cache: Map<string, string> = new Map();
-	
-	// Use cached regex pattern with the Emoji_Presentation and Extended_Pictographic Unicode properties
-	// Reset lastIndex to ensure consistent behavior with multiple calls
-	regexPatterns.emoji.lastIndex = 0;
-	return text.replace(regexPatterns.emoji, (match) => {
-		// Check cache first
-		if (cache.has(match)) {
-			return cache.get(match)!;
-		}
-		
-		// Convert and cache the result
-		const codePoint = match.codePointAt(0);
-		if (codePoint) {
-			const result = `\\u{${codePoint.toString(16).toUpperCase()}}`;
-			cache.set(match, result);
-			return result;
-		}
-		return match;
-	});
-}
-
-/**
- * Converts Unicode escape sequences to emoji characters
- * @param text The text containing Unicode escape sequences
- * @returns Text with Unicode escape sequences converted to emojis
- */
-export function convertUnicodeToEmojis(text: string): string {
-	// Reset lastIndex to ensure consistent behavior with multiple calls
-	regexPatterns.unicode.lastIndex = 0;
-	// Match Unicode escape sequences in the format \u{XXXX}
-	return text.replace(regexPatterns.unicode, (_, codePoint) => {
-		return String.fromCodePoint(parseInt(codePoint, 16));
-	});
-}
-
-/**
- * Converts emoji characters to HTML entities
- * @param text The text containing emoji characters
- * @returns Text with emojis converted to HTML entities
- */
-export function convertEmojisToHtmlEntities(text: string): string {
-	// Cache for previously converted emojis to improve performance
-	const cache: Map<string, string> = new Map();
-	
-	// Reset lastIndex to ensure consistent behavior with multiple calls
-	regexPatterns.emoji.lastIndex = 0;
-	// Use cached regex pattern
-	return text.replace(regexPatterns.emoji, (match) => {
-		// Check cache first
-		if (cache.has(match)) {
-			return cache.get(match)!;
-		}
-		
-		// Convert and cache the result
-		const codePoint = match.codePointAt(0);
-		if (codePoint) {
-			const result = `&#${codePoint};`;
-			cache.set(match, result);
-			return result;
-		}
-		return match;
-	});
-}
-
-/**
- * Converts HTML entities to emoji characters
- * @param text The text containing HTML entities
- * @returns Text with HTML entities converted to emojis
- */
-export function convertHtmlEntitiesToEmojis(text: string): string {
-	// Reset lastIndex to ensure consistent behavior with multiple calls
-	regexPatterns.html.lastIndex = 0;
-	// Match HTML decimal entities in the format &#XXXXX;
-	return text.replace(regexPatterns.html, (_, codePoint) => {
-		return String.fromCodePoint(parseInt(codePoint, 10));
-	});
-}
-
-/**
- * Converts emoji characters to Markdown shortcodes
- * @param text The text containing emoji characters
- * @returns Text with emojis converted to Markdown shortcodes
- */
-export function convertEmojisToMarkdown(text: string): string {
-	// Reset lastIndex to ensure consistent behavior with multiple calls
-	regexPatterns.emoji.lastIndex = 0;
-	// For each emoji in the text, replace with its Markdown shortcode if available
-	return text.replace(regexPatterns.emoji, (match) => {
-		const shortcode = emojiToMarkdownMap.get(match);
-		return shortcode || match;
-	});
-}
-
-/**
- * Converts Markdown shortcodes to emoji characters
- * @param text The text containing Markdown shortcodes
- * @returns Text with Markdown shortcodes converted to emojis
- */
-export function convertMarkdownToEmojis(text: string): string {
-	// Reset lastIndex to ensure consistent behavior with multiple calls
-	regexPatterns.markdown.lastIndex = 0;
-	// Match Markdown shortcodes in the format :shortcode:
-	return text.replace(regexPatterns.markdown, (match, shortcode) => {
-		const emoji = markdownToEmojiMap.get(shortcode);
-		return emoji || match;
-	});
 }
 
 // This method is called when your extension is deactivated

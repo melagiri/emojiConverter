@@ -129,7 +129,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "package": "vsce package"
+    "package": "vsce package",
+    "test": "mocha -r ts-node/register test/**/*.test.ts --reporter spec"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -149,6 +150,7 @@
     "mocha": "^10.8.2",
     "nyc": "^15.1.0",
     "sinon": "^17.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
 }
