@@ -129,10 +129,6 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "node ./out/test/runTest.js",
-    "test:unit": "npm run compile && node ./test/runUnitTests.js",
-    "test:coverage": "nyc npm run test:unit",
-    "test:integration": "vscode-test",
     "package": "vsce package"
   },
   "devDependencies": {
