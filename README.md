@@ -96,9 +96,14 @@ This extension does not add any VS Code settings.
 
 - Some rare or complex emoji sequences may not be properly converted
 - Not all emojis have corresponding Markdown shortcodes
-- Please report any issues on the [GitHub repository](https://github.com/melagiri/emoji-converter)
+- Please report any issues on the [GitHub repository](https://github.com/melagiri/emojiConverter)
 
 ## Release Notes
+
+### 1.1.0 - Repository Update
+
+- Updated repository URL
+- Code cleanup and optimization
 
 ### 1.0.0 - Initial Release
 

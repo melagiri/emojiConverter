@@ -2,13 +2,13 @@
   "name": "emoji-converter",
   "displayName": "Emoji Converter",
   "description": "Convert between emojis, Unicode escape sequences, HTML entities, and Markdown shortcodes",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "melagiri",
   "icon": "images/icon.png",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/melagiri/emoji-converter"
+    "url": "https://github.com/melagiri/emojiConverter"
   },
   "engines": {
     "vscode": "^1.100.0",

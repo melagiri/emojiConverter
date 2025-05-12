@@ -4,6 +4,13 @@ All notable changes to the "emoji-converter" extension will be documented in thi
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.1.0] - 2025-05-12
+
+### Changed
+
+- Updated repository URL
+- Code cleanup and optimization for publishing
+
 ## [1.0.0] - 2025-05-11 - Initial release
 
 ### Features
