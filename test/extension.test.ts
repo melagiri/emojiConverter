@@ -6,7 +6,10 @@ import {
   convertHtmlEntitiesToEmojis,
   convertEmojisToMarkdown,
   convertMarkdownToEmojis,
-  composeConversions
+  composeConversions,
+  regexPatterns,
+  emojiToMarkdownMap,
+  markdownToEmojiMap
 } from '../src/conversion';
 
 describe('Emoji Converter Extension', () => {
@@ -170,6 +173,57 @@ describe('Emoji Converter Extension', () => {
       const markdowns = emojiMarkdownPairs.map(([, m]) => m).join('');
       expect(normalizeEmoji(convertEmojisToMarkdown(emojis))).to.equal(normalizeEmoji(markdowns));
       expect(normalizeEmoji(convertMarkdownToEmojis(markdowns))).to.equal(normalizeEmoji(emojis));
+    });
+  });
+
+  describe('Edge cases and coverage for conversion.ts', () => {
+    it('should handle empty strings for all conversions', () => {
+      expect(convertEmojisToUnicode('')).to.equal('');
+      expect(convertUnicodeToEmojis('')).to.equal('');
+      expect(convertEmojisToHtmlEntities('')).to.equal('');
+      expect(convertHtmlEntitiesToEmojis('')).to.equal('');
+      expect(convertEmojisToMarkdown('')).to.equal('');
+      expect(convertMarkdownToEmojis('')).to.equal('');
+    });
+    it('should handle mixed content', () => {
+      const input = 'Hello 💬 :speech_balloon: &#128172; \\u{1F4AC}!';
+      // Only emoji is converted
+      expect(convertEmojisToUnicode(input)).to.include('\\u{1F4AC}');
+      expect(convertEmojisToHtmlEntities(input)).to.include('&#128172;');
+      expect(convertEmojisToMarkdown(input)).to.include(':speech_balloon:');
+      // Only markdown is converted
+      expect(convertMarkdownToEmojis(input)).to.include('💬');
+      // Only HTML entity is converted
+      expect(convertHtmlEntitiesToEmojis(input)).to.include('💬');
+      // Only unicode is converted
+      expect(convertUnicodeToEmojis(input.replace('\\', ''))).to.include('💬');
+    });
+    it('should not throw on invalid unicode or html entity', () => {
+      expect(() => convertUnicodeToEmojis('\\u{ZZZZ}')).to.not.throw();
+      expect(() => convertHtmlEntitiesToEmojis('&#notanumber;')).to.not.throw();
+    });
+    it('should allow composeConversions with no functions', () => {
+      const composed = composeConversions();
+      expect(composed('test')).to.equal('test');
+    });
+    it('should allow composeConversions with one function', () => {
+      const composed = composeConversions(convertEmojisToMarkdown);
+      expect(composed('💬')).to.equal(':speech_balloon:');
+    });
+    it('regexPatterns should match expected content', () => {
+      expect('💬'.match(regexPatterns.emoji)).to.not.be.null;
+      expect('\\u{1F4AC}'.match(regexPatterns.unicode)).to.not.be.null;
+      expect('&#128172;'.match(regexPatterns.html)).to.not.be.null;
+      expect(':speech_balloon:'.match(regexPatterns.markdown)).to.not.be.null;
+    });
+    it('emojiToMarkdownMap and markdownToEmojiMap should be consistent', () => {
+      function normalizeEmoji(str: string) {
+        return str.normalize('NFKD').replace(/\uFE0F/g, '');
+      }
+      for (const [emoji, markdown] of emojiToMarkdownMap.entries()) {
+        const shortcode = markdown.replace(/:/g, '');
+        expect(normalizeEmoji(markdownToEmojiMap.get(shortcode) || '')).to.equal(normalizeEmoji(emoji));
+      }
     });
   });
 });
