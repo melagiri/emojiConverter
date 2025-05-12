@@ -1,35 +1,41 @@
 # Emoji Converter
 
-A VS Code extension that converts emojis to various formats including Unicode escape sequences, HTML entities, and Markdown shortcodes. This makes it easier for code formatters to process files containing emoji characters and ensures compatibility across different platforms and languages.
+A VS Code extension that converts between various emoji formats including Unicode escape sequences, HTML entities, and Markdown shortcodes. This makes it easier for code formatters to process files containing emoji characters and ensures compatibility across different platforms and languages.
 
 ## Features
 
 This extension provides commands to convert characters between multiple formats:
 
-1. **Convert emoji characters to Unicode escape sequences**:
+1. **Convert to Unicode escape sequences** from any format:
 
    - 💬 becomes `\u{1F4AC}`
    - 😊 becomes `\u{1F60A}`
    - 🚀 becomes `\u{1F680}`
+   - `:blush:` becomes `\u{1F60A}`
+   - `&#128522;` becomes `\u{1F60A}`
 
-2. **Convert emoji characters to HTML entities**:
+2. **Convert to HTML entities** from any format:
 
    - 💬 becomes `&#128172;`
    - 😊 becomes `&#128522;`
    - 🚀 becomes `&#128640;`
+   - `:blush:` becomes `&#128522;`
+   - `\u{1F60A}` becomes `&#128522;`
 
-3. **Convert emoji characters to Markdown shortcodes**:
+3. **Convert to Markdown shortcodes** from any format:
 
    - 💬 becomes `:speech_balloon:`
    - 😊 becomes `:blush:`
    - 🚀 becomes `:rocket:`
+   - `\u{1F60A}` becomes `:blush:`
+   - `&#128522;` becomes `:blush:`
 
-4. **Convert back to emojis** from any of these formats:
+4. **Convert to emojis** from any format:
    - `\u{1F60A}` becomes 😊
    - `&#128522;` becomes 😊
    - `:blush:` becomes 😊
 
-This bidirectional conversion helps prevent formatting issues in code editors and ensures compatibility with tools and systems that may not properly handle special characters, while also giving you the option to switch back to visual emojis when needed.
+This multi-directional conversion helps prevent formatting issues in code editors and ensures compatibility with tools and systems that may not properly handle special characters, while also giving you the flexibility to convert between any formats as needed.
 
 ## Usage
 
@@ -50,16 +56,16 @@ There are multiple ways to use this extension:
 3. **Command Palette**:
 
    - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) and search for any of the conversion commands:
-     - "Convert Emojis to Unicode Escape Sequences"
-     - "Convert Emojis to HTML Entities"
-     - "Convert Emojis to Markdown Shortcodes"
+     - "Convert to Unicode Escape Sequences"
+     - "Convert to HTML Entities"
+     - "Convert to Markdown Shortcodes"
      - "Convert to Emojis (from any format)"
 
 4. **Keyboard Shortcuts**:
-   - `Ctrl+Alt+U` (`Cmd+Alt+U` on macOS): Convert Emojis to Unicode
-   - `Ctrl+Alt+H` (`Cmd+Alt+H` on macOS): Convert Emojis to HTML Entities
-   - `Ctrl+Alt+M` (`Cmd+Alt+M` on macOS): Convert Emojis to Markdown Shortcodes
-   - `Ctrl+Alt+E` (`Cmd+Alt+E` on macOS): Convert to Emojis (from any format)
+   - `Ctrl+Alt+U` (`Cmd+Alt+U` on macOS): Convert to Unicode
+   - `Ctrl+Alt+H` (`Cmd+Alt+H` on macOS): Convert to HTML Entities
+   - `Ctrl+Alt+M` (`Cmd+Alt+M` on macOS): Convert to Markdown Shortcodes
+   - `Ctrl+Alt+E` (`Cmd+Alt+E` on macOS): Convert to Emojis
 
 The extension will apply the conversion to your current selection, or to the entire document if nothing is selected.
 
@@ -99,6 +105,15 @@ This extension does not add any VS Code settings.
 - Please report any issues on the [GitHub repository](https://github.com/melagiri/emojiConverter)
 
 ## Release Notes
+
+### 2.0.0 - Full Format Conversion
+
+- Full bidirectional conversion between all formats:
+  - Convert between any format (Unicode, HTML, Markdown, emoji) to any other format
+  - Example: Select Unicode escape sequences and convert directly to HTML entities
+  - Example: Select Markdown shortcodes and convert directly to Unicode escape sequences
+- Updated commands and descriptions for clarity
+- Improved conversion logic
 
 ### 1.1.0 - Repository Update
 

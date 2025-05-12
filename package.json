@@ -2,7 +2,7 @@
   "name": "emoji-converter",
   "displayName": "Emoji Converter",
   "description": "Convert between emojis, Unicode escape sequences, HTML entities, and Markdown shortcodes",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "publisher": "melagiri",
   "icon": "images/icon.png",
   "license": "MIT",
@@ -38,16 +38,16 @@
         "title": "Convert Emoji Format..."
       },
       {
-        "command": "emoji-converter.convertEmojiToUnicode",
-        "title": "Convert Emojis to Unicode Escape Sequences"
+        "command": "emoji-converter.convertToUnicode",
+        "title": "Convert to Unicode Escape Sequences"
       },
       {
-        "command": "emoji-converter.convertEmojiToHtml",
-        "title": "Convert Emojis to HTML Entities"
+        "command": "emoji-converter.convertToHtmlEntities",
+        "title": "Convert to HTML Entities"
       },
       {
         "command": "emoji-converter.convertEmojiToMarkdown",
-        "title": "Convert Emojis to Markdown Shortcodes"
+        "title": "Convert to Markdown Shortcodes"
       },
       {
         "command": "emoji-converter.convertToEmoji",
@@ -62,13 +62,13 @@
         "when": "editorTextFocus"
       },
       {
-        "command": "emoji-converter.convertEmojiToUnicode",
+        "command": "emoji-converter.convertToUnicode",
         "key": "ctrl+alt+u",
         "mac": "cmd+alt+u",
         "when": "editorTextFocus"
       },
       {
-        "command": "emoji-converter.convertEmojiToHtml",
+        "command": "emoji-converter.convertToHtmlEntities",
         "key": "ctrl+alt+h",
         "mac": "cmd+alt+h",
         "when": "editorTextFocus"
@@ -99,11 +99,11 @@
           "group": "1_conversion"
         },
         {
-          "command": "emoji-converter.convertEmojiToUnicode",
+          "command": "emoji-converter.convertToUnicode",
           "group": "2_conversion"
         },
         {
-          "command": "emoji-converter.convertEmojiToHtml",
+          "command": "emoji-converter.convertToHtmlEntities",
           "group": "2_conversion"
         },
         {

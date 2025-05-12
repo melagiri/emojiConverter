@@ -107,101 +107,116 @@ const emojiToMarkdownMap: Map<string, string> = new Map([
 ['🎉', ':tada:'],
 ]);
 
+// Global regex patterns for better performance (avoid recompilation)
+const regexPatterns = {
+	emoji: /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu,
+	unicode: /\\u\{([0-9A-Fa-f]+)\}/g,
+	html: /&#(\d+);/g,
+	markdown: /:([\w_]+):/g
+};
+
+// Create a reverse mapping (Markdown → Emoji) for faster lookups
+const markdownToEmojiMap: Map<string, string> = new Map();
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+    // Initialize the reverse mapping
+    emojiToMarkdownMap.forEach((value, key) => {
+        markdownToEmojiMap.set(value.replace(/:/g, ''), key);
+    });
 
-	// Register the quick format selection command
-	const quickFormatCommand = vscode.commands.registerCommand('emoji-converter.quickFormatSelection', async () => {
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) {
-			vscode.window.showWarningMessage('No active editor found');
-			return;
-		}
+    // Register the quick format selection command
+    const quickFormatCommand = vscode.commands.registerCommand('emoji-converter.quickFormatSelection', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showWarningMessage('No active editor found');
+            return;
+        }
 
-		// Show a quick pick menu for format selection
-		const formatOptions = [
-			{ label: 'Unicode Escape Sequences', format: 'unicode' },
-			{ label: 'HTML Entities', format: 'html' },
-			{ label: 'Markdown Shortcodes', format: 'markdown' },
-			{ label: 'Emojis (from any format)', format: 'emoji' }
-		];
+        // Show a quick pick menu for format selection
+        const formatOptions = [
+            { label: 'Unicode Escape Sequences', format: 'unicode' },
+            { label: 'HTML Entities', format: 'html' },
+            { label: 'Markdown Shortcodes', format: 'markdown' },
+            { label: 'Emojis (from any format)', format: 'emoji' }
+        ];
 
-		const selectedFormat = await vscode.window.showQuickPick(formatOptions, {
-			placeHolder: 'Select target format for conversion',
-		});
+        const selectedFormat = await vscode.window.showQuickPick(formatOptions, {
+            placeHolder: 'Select target format for conversion',
+        });
 
-		if (!selectedFormat) {
-			return; // User cancelled the selection
-		}
+        if (!selectedFormat) {
+            return; // User cancelled the selection
+        }
 
-		// Call the appropriate conversion function based on the selected format
-		switch (selectedFormat.format) {
-			case 'unicode':
-				convertEmojisToUnicodeInEditor(editor);
-				break;
-			case 'html':
-				convertEmojisToHtmlInEditor(editor);
-				break;
-			case 'markdown':
-				convertEmojisToMarkdownInEditor(editor);
-				break;
-			case 'emoji':
-				convertAllToEmojisInEditor(editor);
-				break;
-		}
-	});
+        // Call the appropriate conversion function based on the selected format
+        switch (selectedFormat.format) {
+            case 'unicode':
+                convertToUnicodeInEditor(editor);
+                break;
+            case 'html':
+                convertToHtmlInEditor(editor);
+                break;
+            case 'markdown':
+                convertToMarkdownInEditor(editor);
+                break;
+            case 'emoji':
+                convertAllToEmojisInEditor(editor);
+                break;
+        }
+    });
 
-	// Register the command to convert emojis to Unicode escape sequences (Ctrl+Alt+U)
-	const convertEmojiToUnicodeCommand = vscode.commands.registerCommand('emoji-converter.convertEmojiToUnicode', () => {
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			convertEmojisToUnicodeInEditor(editor);
-			vscode.window.showInformationMessage('Emojis converted to Unicode escape sequences');
-		} else {
-			vscode.window.showWarningMessage('No active editor found');
-		}
-	});
+    // Register the command to convert to Unicode escape sequences (Ctrl+Alt+U)
+    const convertToUnicodeCommand = vscode.commands.registerCommand('emoji-converter.convertToUnicode', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            convertToUnicodeInEditor(editor);
+            vscode.window.showInformationMessage('Converted to Unicode escape sequences');
+        } else {
+            vscode.window.showWarningMessage('No active editor found');
+        }
+    });
 
-	// Register the command to convert emojis to HTML entities (Ctrl+Alt+H)
-	const convertEmojiToHtmlCommand = vscode.commands.registerCommand('emoji-converter.convertEmojiToHtml', () => {
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			convertEmojisToHtmlInEditor(editor);
-			vscode.window.showInformationMessage('Emojis converted to HTML entities');
-		} else {
-			vscode.window.showWarningMessage('No active editor found');
-		}
-	});
+    // Register the command to convert to HTML entities (Ctrl+Alt+H)
+    const convertToHtmlCommand = vscode.commands.registerCommand('emoji-converter.convertToHtmlEntities', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            convertToHtmlInEditor(editor);
+            vscode.window.showInformationMessage('Converted to HTML entities');
+        } else {
+            vscode.window.showWarningMessage('No active editor found');
+        }
+    });
 
-	// Register the command to convert emojis to Markdown shortcodes (Ctrl+Alt+M)
-	const convertEmojiToMarkdownCommand = vscode.commands.registerCommand('emoji-converter.convertEmojiToMarkdown', () => {
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			convertEmojisToMarkdownInEditor(editor);
-			vscode.window.showInformationMessage('Emojis converted to Markdown shortcodes');
-		} else {
-			vscode.window.showWarningMessage('No active editor found');
-		}
-	});
+    // Register the command to convert to Markdown shortcodes (Ctrl+Alt+M)
+    const convertEmojiToMarkdownCommand = vscode.commands.registerCommand('emoji-converter.convertEmojiToMarkdown', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            convertToMarkdownInEditor(editor);
+            vscode.window.showInformationMessage('Converted to Markdown shortcodes');
+        } else {
+            vscode.window.showWarningMessage('No active editor found');
+        }
+    });
 
-	// Register the command to convert Unicode/HTML/Markdown to emojis (Ctrl+Alt+E)
-	const convertToEmojiCommand = vscode.commands.registerCommand('emoji-converter.convertToEmoji', () => {
-		const editor = vscode.window.activeTextEditor;
-		if (editor) {
-			convertAllToEmojisInEditor(editor);
-			vscode.window.showInformationMessage('Converted to emojis');
-		} else {
-			vscode.window.showWarningMessage('No active editor found');
-		}
-	});
+    // Register the command to convert Unicode/HTML/Markdown to emojis (Ctrl+Alt+E)
+    const convertToEmojiCommand = vscode.commands.registerCommand('emoji-converter.convertToEmoji', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            convertAllToEmojisInEditor(editor);
+            vscode.window.showInformationMessage('Converted to emojis');
+        } else {
+            vscode.window.showWarningMessage('No active editor found');
+        }
+    });
 
-	// Register all commands
-	context.subscriptions.push(quickFormatCommand);
-	context.subscriptions.push(convertEmojiToUnicodeCommand);
-	context.subscriptions.push(convertEmojiToHtmlCommand);
-	context.subscriptions.push(convertEmojiToMarkdownCommand);
-	context.subscriptions.push(convertToEmojiCommand);
+    // Register all commands
+    context.subscriptions.push(quickFormatCommand);
+    context.subscriptions.push(convertToUnicodeCommand);
+    context.subscriptions.push(convertToHtmlCommand);
+    context.subscriptions.push(convertEmojiToMarkdownCommand);
+    context.subscriptions.push(convertToEmojiCommand);
 }
 
 /**
@@ -217,6 +232,7 @@ function applyConversionInEditor(
 ) {
 	// Check if we have an active editor
 	if (!editor) {
+		vscode.window.showErrorMessage('No active editor found');
 		return;
 	}
 
@@ -231,33 +247,91 @@ function applyConversionInEditor(
 		return vscode.window.withProgress({
 			location: vscode.ProgressLocation.Notification,
 			title: progressMessage || 'Converting text...',
-			cancellable: false
-		}, async () => {
-			const text = document.getText();
-			const convertedText = conversionFn(text);
-			
-			// If text was changed, replace the entire document content
-			if (convertedText !== text) {
-				const fullRange = new vscode.Range(
-					document.positionAt(0),
-					document.positionAt(text.length)
-				);
+			cancellable: true
+		}, async (progress, token) => {
+			try {
+				const text = document.getText();
 				
-				await editor.edit(editBuilder => {
-					editBuilder.replace(fullRange, convertedText);
-				});
+				// For large documents (>100KB), process in chunks to avoid UI freezes
+				if (text.length > 100000) {
+					const chunkSize = 50000; // Process in 50KB chunks
+					let convertedText = '';
+					let processedChunks = 0;
+					const totalChunks = Math.ceil(text.length / chunkSize);
+					
+					// Process each chunk
+					for (let i = 0; i < text.length; i += chunkSize) {
+						// Check if operation was canceled
+						if (token.isCancellationRequested) {
+							vscode.window.showInformationMessage('Conversion canceled');
+							return;
+						}
+						
+						const chunk = text.substring(i, i + chunkSize);
+						convertedText += conversionFn(chunk);
+						processedChunks++;
+						
+						// Update progress
+						progress.report({ 
+							message: `Processing chunk ${processedChunks} of ${totalChunks}...`,
+							increment: (1 / totalChunks) * 100
+						});
+						
+						// Allow UI to update between chunks
+						await new Promise(resolve => setTimeout(resolve, 0));
+					}
+					
+					// Apply the converted text if it's different from the original
+					if (convertedText !== text) {
+						const fullRange = new vscode.Range(
+							document.positionAt(0),
+							document.positionAt(text.length)
+						);
+						
+						await editor.edit(editBuilder => {
+							editBuilder.replace(fullRange, convertedText);
+						});
+					} else {
+						vscode.window.showInformationMessage('No changes were made to the document');
+					}
+				} else {
+					// For smaller documents, process all at once
+					const convertedText = conversionFn(text);
+					
+					// If text was changed, replace the entire document content
+					if (convertedText !== text) {
+						const fullRange = new vscode.Range(
+							document.positionAt(0),
+							document.positionAt(text.length)
+						);
+						
+						await editor.edit(editBuilder => {
+							editBuilder.replace(fullRange, convertedText);
+						});
+					} else {
+						vscode.window.showInformationMessage('No changes were made to the document');
+					}
+				}
+			} catch (error) {
+				vscode.window.showErrorMessage(`Error during conversion: ${error instanceof Error ? error.message : String(error)}`);
 			}
 		});
 	} else {
 		// There is a selection, only process that text
-		const text = document.getText(selection);
-		const convertedText = conversionFn(text);
-		
-		// If text was changed, replace only the selected content
-		if (convertedText !== text) {
-			editor.edit(editBuilder => {
-				editBuilder.replace(selection, convertedText);
-			});
+		try {
+			const text = document.getText(selection);
+			const convertedText = conversionFn(text);
+			
+			// If text was changed, replace only the selected content
+			if (convertedText !== text) {
+				return editor.edit(editBuilder => {
+					editBuilder.replace(selection, convertedText);
+				});
+			} else {
+				vscode.window.showInformationMessage('No changes were made to the selection');
+			}
+		} catch (error) {
+			vscode.window.showErrorMessage(`Error during conversion: ${error instanceof Error ? error.message : String(error)}`);
 		}
 	}
 }
@@ -341,144 +415,383 @@ function convertMarkdownToEmojisInEditor(editor: vscode.TextEditor) {
 function convertAllToEmojisInEditor(editor: vscode.TextEditor) {
 	applyConversionInEditor(
 		editor,
-		(text: string) => {
-			// Try all conversion methods to emojis
-			let convertedText = convertUnicodeToEmojis(text);
-			convertedText = convertHtmlEntitiesToEmojis(convertedText);
-			convertedText = convertMarkdownToEmojis(convertedText);
-			return convertedText;
-		},
+		// Use composition for more efficient conversions
+		composeConversions(
+			convertUnicodeToEmojis,
+			convertHtmlEntitiesToEmojis,
+			convertMarkdownToEmojis
+		),
 		'Converting to emojis...'
 	);
 }
 
 /**
- * Converts emojis in the given text to Unicode escape sequences
- * @param text The input text containing emojis
- * @returns Text with emojis replaced by Unicode escape sequences
+ * Composes multiple conversion functions into a single function
+ * for more efficient processing of text with multiple format transformations
+ * @param conversionFns Array of conversion functions to apply in sequence
+ * @returns A single conversion function that applies all transformations
+ */
+function composeConversions(...conversionFns: Array<(text: string) => string>): (text: string) => string {
+	return (text: string) => {
+		return conversionFns.reduce((result, fn) => fn(result), text);
+	};
+}
+
+/**
+ * Converts any format to Unicode escape sequences
+ * First converts any format to emojis, then converts emojis to Unicode
+ * @param editor The active text editor
+ */
+function convertToUnicodeInEditor(editor: vscode.TextEditor) {
+	applyConversionInEditor(
+		editor,
+		// Use composition for more efficient conversions
+		composeConversions(
+			convertUnicodeToEmojis,
+			convertHtmlEntitiesToEmojis, 
+			convertMarkdownToEmojis,
+			convertEmojisToUnicode
+		),
+		'Converting to Unicode escape sequences...'
+	);
+}
+
+/**
+ * Converts any format to HTML entities
+ * First converts any format to emojis, then converts emojis to HTML entities
+ * @param editor The active text editor
+ */
+function convertToHtmlInEditor(editor: vscode.TextEditor) {
+	applyConversionInEditor(
+		editor,
+		// Use composition for more efficient conversions
+		composeConversions(
+			convertUnicodeToEmojis,
+			convertHtmlEntitiesToEmojis, 
+			convertMarkdownToEmojis,
+			convertEmojisToHtmlEntities
+		),
+		'Converting to HTML entities...'
+	);
+}
+
+/**
+ * Converts any format to Markdown shortcodes
+ * First converts any format to emojis, then converts emojis to Markdown shortcodes
+ * @param editor The active text editor
+ */
+function convertToMarkdownInEditor(editor: vscode.TextEditor) {
+	applyConversionInEditor(
+		editor,
+		// Use composition for more efficient conversions
+		composeConversions(
+			convertUnicodeToEmojis,
+			convertHtmlEntitiesToEmojis, 
+			convertMarkdownToEmojis,
+			convertEmojisToMarkdown
+		),
+		'Converting to Markdown shortcodes...'
+	);
+}
+
+/**
+ * Converts text from one format to another based on source and target formats
+ * @param text The text to convert
+ * @param targetFormat The desired output format
+ * @returns The converted text
+ */
+function smartConvert(text: string, targetFormat: TextFormat): string {
+	// First, detect the source format
+	const sourceFormat = detectTextFormat(text);
+	
+	// If source and target formats are the same, no conversion needed
+	if (sourceFormat === targetFormat) {
+		return text;
+	}
+	
+	// Fast conversion path for common scenarios
+	if (sourceFormat === TextFormat.Emoji) {
+		// Direct conversions from emoji to other formats
+		switch (targetFormat) {
+			case TextFormat.Unicode: return convertEmojisToUnicode(text);
+			case TextFormat.Html: return convertEmojisToHtmlEntities(text);
+			case TextFormat.Markdown: return convertEmojisToMarkdown(text);
+			default: return text;
+		}
+	}
+	
+	// Direct format-to-format conversions to avoid unnecessary intermediate steps
+	// These direct conversions improve performance by avoiding the emoji step
+	const conversionKey = `${sourceFormat}_${targetFormat}`;
+	
+	if (sourceFormat === TextFormat.Unicode && targetFormat === TextFormat.Html) {
+		// Unicode → HTML: Direct conversion without going through emoji
+		regexPatterns.unicode.lastIndex = 0;
+		return text.replace(regexPatterns.unicode, (_, codePoint) => 
+			`&#${parseInt(codePoint, 16)};`);
+	} 
+	else if (sourceFormat === TextFormat.Unicode && targetFormat === TextFormat.Markdown) {
+		// Unicode → Markdown: Direct conversion
+		regexPatterns.unicode.lastIndex = 0;
+		return text.replace(regexPatterns.unicode, (_, codePoint) => {
+			const emoji = String.fromCodePoint(parseInt(codePoint, 16));
+			return emojiToMarkdownMap.get(emoji) || emoji;
+		});
+	}
+	else if (sourceFormat === TextFormat.Html && targetFormat === TextFormat.Unicode) {
+		// HTML → Unicode: Direct conversion
+		regexPatterns.html.lastIndex = 0;
+		return text.replace(regexPatterns.html, (_, codePoint) => 
+			`\\u{${parseInt(codePoint, 10).toString(16).toUpperCase()}}`);
+	}
+	else if (sourceFormat === TextFormat.Html && targetFormat === TextFormat.Markdown) {
+		// HTML → Markdown: Direct conversion
+		regexPatterns.html.lastIndex = 0;
+		return text.replace(regexPatterns.html, (_, codePoint) => {
+			const emoji = String.fromCodePoint(parseInt(codePoint, 10));
+			return emojiToMarkdownMap.get(emoji) || emoji;
+		});
+	}
+	else if (sourceFormat === TextFormat.Markdown && targetFormat === TextFormat.Unicode) {
+		// Markdown → Unicode: Direct conversion
+		regexPatterns.markdown.lastIndex = 0;
+		return text.replace(regexPatterns.markdown, (match, shortcode) => {
+			const emoji = markdownToEmojiMap.get(shortcode);
+			if (emoji) {
+				const codePoint = emoji.codePointAt(0);
+				if (codePoint) {
+					return `\\u{${codePoint.toString(16).toUpperCase()}}`;
+				}
+			}
+			return match;
+		});
+	}
+	else if (sourceFormat === TextFormat.Markdown && targetFormat === TextFormat.Html) {
+		// Markdown → HTML: Direct conversion
+		regexPatterns.markdown.lastIndex = 0;
+		return text.replace(regexPatterns.markdown, (match, shortcode) => {
+			const emoji = markdownToEmojiMap.get(shortcode);
+			if (emoji) {
+				const codePoint = emoji.codePointAt(0);
+				if (codePoint) {
+					return `&#${codePoint};`;
+				}
+			}
+			return match;
+		});
+	}
+	
+	// Fall back to the multi-step conversion approach for mixed content
+	// or when no direct conversion is available
+	
+	// Convert everything to emoji first
+	let convertedText = convertUnicodeToEmojis(text);
+	convertedText = convertHtmlEntitiesToEmojis(convertedText);
+	convertedText = convertMarkdownToEmojis(convertedText);
+	
+	// If target is emoji, we're done
+	if (targetFormat === TextFormat.Emoji) {
+		return convertedText;
+	}
+	
+	// Otherwise, convert emoji to the target format
+	switch (targetFormat) {
+		case TextFormat.Unicode:
+			return convertEmojisToUnicode(convertedText);
+		case TextFormat.Html:
+			return convertEmojisToHtmlEntities(convertedText);
+		case TextFormat.Markdown:
+			return convertEmojisToMarkdown(convertedText);
+		default:
+			return convertedText;
+	}
+}
+
+/**
+ * Enum representing different text formats
+ */
+enum TextFormat {
+	Unicode,
+	Html,
+	Markdown,
+	Emoji,
+	Mixed
+}
+
+/**
+ * Detects the format of the given text
+ * @param text The text to analyze
+ * @returns The detected format or Mixed if multiple formats are found
+ */
+function detectTextFormat(text: string): TextFormat {
+	// Optimize by using early returns for common cases
+	
+	// Reset all regex patterns to ensure consistent behavior
+	Object.values(regexPatterns).forEach(pattern => {
+		if (pattern.global) {
+			pattern.lastIndex = 0;
+		}
+	});
+	
+	// Check for emoji characters first (common case)
+	const hasEmoji = regexPatterns.emoji.test(text);
+	
+	// Only continue if no emoji is found or if we need to check for mixed content
+	let formatCount = hasEmoji ? 1 : 0;
+	
+	// Perform more specific checks only on smaller samples for large texts
+	const sampleText = text.length > 10000 ? text.substring(0, 5000) + text.substring(text.length - 5000) : text;
+	
+	// Check for Unicode escape sequences (common in code)
+	const hasUnicode = regexPatterns.unicode.test(sampleText);
+	if (hasUnicode) { formatCount++; }
+	
+	// If we already have mixed formats, return early
+	if (formatCount > 1) {
+		return TextFormat.Mixed;
+	}
+	
+	// Check for HTML entities
+	const hasHtml = regexPatterns.html.test(sampleText);
+	if (hasHtml) { formatCount++; }
+	
+	// If we already have mixed formats, return early
+	if (formatCount > 1) {
+		return TextFormat.Mixed;
+	}
+	
+	// Check for Markdown shortcodes
+	const hasMarkdown = regexPatterns.markdown.test(sampleText);
+	if (hasMarkdown) { formatCount++; }
+	
+	// If we have more than one format, it's mixed
+	if (formatCount > 1) {
+		return TextFormat.Mixed;
+	}
+	
+	// Return the specific format found
+	if (hasUnicode) { return TextFormat.Unicode; }
+	if (hasHtml) { return TextFormat.Html; }
+	if (hasMarkdown) { return TextFormat.Markdown; }
+	if (hasEmoji) { return TextFormat.Emoji; }
+	
+	// Default to assuming it's plain text (treated as Emoji for conversion purposes)
+	return TextFormat.Emoji;
+}
+
+/**
+ * Converts emoji characters to Unicode escape sequences
+ * @param text The text containing emoji characters
+ * @returns Text with emojis converted to Unicode escape sequences
  */
 export function convertEmojisToUnicode(text: string): string {
-	// Regular expression to match emoji characters
-	// This pattern will match most common emoji characters
-	return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, (match) => {
-		// Get the code point of the emoji and convert it to a Unicode escape sequence
-		const codePoint = match.codePointAt(0);
-		if (codePoint) {
-			return `\\u{${codePoint.toString(16).toUpperCase()}}`;
-		}
-		return match;
-	});
-}
-
-/**
- * Converts emojis in the given text to HTML entities
- * @param text The input text containing emojis
- * @returns Text with emojis replaced by HTML entities
- */
-export function convertEmojisToHtmlEntities(text: string): string {
-	return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, (match) => {
-		// Get the code point of the emoji and convert it to an HTML entity
-		const codePoint = match.codePointAt(0);
-		if (codePoint) {
-			return `&#${codePoint};`;
-		}
-		return match;
-	});
-}
-
-/**
- * Converts emojis in the given text to Markdown shortcodes
- * @param text The input text containing emojis
- * @returns Text with emojis replaced by Markdown shortcodes
- */
-export function convertEmojisToMarkdown(text: string): string {
-	return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, (match) => {
-		// Look up the emoji in our map
-		const shortcode = emojiToMarkdownMap.get(match);
-		if (shortcode) {
-			return shortcode;
+	// Cache for previously converted emojis to improve performance
+	const cache: Map<string, string> = new Map();
+	
+	// Use cached regex pattern with the Emoji_Presentation and Extended_Pictographic Unicode properties
+	// Reset lastIndex to ensure consistent behavior with multiple calls
+	regexPatterns.emoji.lastIndex = 0;
+	return text.replace(regexPatterns.emoji, (match) => {
+		// Check cache first
+		if (cache.has(match)) {
+			return cache.get(match)!;
 		}
 		
-		// If we don't have a mapping, use the Unicode escape sequence as fallback
+		// Convert and cache the result
 		const codePoint = match.codePointAt(0);
 		if (codePoint) {
-			return `:unicode_${codePoint.toString(16)}:`;
+			const result = `\\u{${codePoint.toString(16).toUpperCase()}}`;
+			cache.set(match, result);
+			return result;
 		}
-
 		return match;
 	});
 }
 
 /**
- * Converts Unicode escape sequences in the given text to emoji characters
- * @param text The input text containing Unicode escape sequences
- * @returns Text with Unicode escape sequences replaced by emoji characters
+ * Converts Unicode escape sequences to emoji characters
+ * @param text The text containing Unicode escape sequences
+ * @returns Text with Unicode escape sequences converted to emojis
  */
 export function convertUnicodeToEmojis(text: string): string {
-	// Regular expression to match Unicode escape sequences like \u{1F60A}
-	return text.replace(/\\u\{([0-9A-Fa-f]+)\}/g, (match, codePoint) => {
-		try {
-			// Convert the hex string to a number and then to a character
-			return String.fromCodePoint(parseInt(codePoint, 16));
-		} catch (error) {
-			// If conversion fails, return the original match
-			return match;
-		}
+	// Reset lastIndex to ensure consistent behavior with multiple calls
+	regexPatterns.unicode.lastIndex = 0;
+	// Match Unicode escape sequences in the format \u{XXXX}
+	return text.replace(regexPatterns.unicode, (_, codePoint) => {
+		return String.fromCodePoint(parseInt(codePoint, 16));
 	});
 }
 
 /**
- * Converts HTML entities in the given text to emoji characters
- * @param text The input text containing HTML entities
- * @returns Text with HTML entities replaced by emoji characters
+ * Converts emoji characters to HTML entities
+ * @param text The text containing emoji characters
+ * @returns Text with emojis converted to HTML entities
  */
-export function convertHtmlEntitiesToEmojis(text: string): string {
-	return text.replace(/&#(\d+);/g, (match, codePoint) => {
-		try {
-			// Convert the decimal code point to a character
-			return String.fromCodePoint(parseInt(codePoint, 10));
-		} catch (error) {
-			// If conversion fails, return the original match
-			return match;
-		}
-	});
-}
-
-/**
- * Converts Markdown shortcodes in the given text to emoji characters
- * @param text The input text containing Markdown shortcodes
- * @returns Text with Markdown shortcodes replaced by emoji characters
- */
-export function convertMarkdownToEmojis(text: string): string {
-	// Create a reverse mapping for Markdown to emoji
-	const markdownToEmojiMap = new Map();
-	for (const [emoji, shortcode] of emojiToMarkdownMap.entries()) {
-		markdownToEmojiMap.set(shortcode, emoji);
-	}
-
-	// Replace all shortcodes with their corresponding emojis
-	return text.replace(/:([\w_]+):/g, (match, shortcode) => {
-		const fullShortcode = `:${shortcode}:`;
-
-		// Check if it's a known shortcode
-		const emoji = markdownToEmojiMap.get(fullShortcode);
-		if (emoji) {
-			return emoji;
+export function convertEmojisToHtmlEntities(text: string): string {
+	// Cache for previously converted emojis to improve performance
+	const cache: Map<string, string> = new Map();
+	
+	// Reset lastIndex to ensure consistent behavior with multiple calls
+	regexPatterns.emoji.lastIndex = 0;
+	// Use cached regex pattern
+	return text.replace(regexPatterns.emoji, (match) => {
+		// Check cache first
+		if (cache.has(match)) {
+			return cache.get(match)!;
 		}
 		
-		// Check if it's our fallback unicode format (:unicode_XXXX:)
-		if (shortcode.startsWith('unicode_')) {
-			const codePoint = shortcode.substring(8); // Remove 'unicode_' prefix
-			try {
-				return String.fromCodePoint(parseInt(codePoint, 16));
-			} catch (error) {
-				// If conversion fails, return the original match
-				return match;
-			}
+		// Convert and cache the result
+		const codePoint = match.codePointAt(0);
+		if (codePoint) {
+			const result = `&#${codePoint};`;
+			cache.set(match, result);
+			return result;
 		}
-
-		// If not found, keep the original
 		return match;
+	});
+}
+
+/**
+ * Converts HTML entities to emoji characters
+ * @param text The text containing HTML entities
+ * @returns Text with HTML entities converted to emojis
+ */
+export function convertHtmlEntitiesToEmojis(text: string): string {
+	// Reset lastIndex to ensure consistent behavior with multiple calls
+	regexPatterns.html.lastIndex = 0;
+	// Match HTML decimal entities in the format &#XXXXX;
+	return text.replace(regexPatterns.html, (_, codePoint) => {
+		return String.fromCodePoint(parseInt(codePoint, 10));
+	});
+}
+
+/**
+ * Converts emoji characters to Markdown shortcodes
+ * @param text The text containing emoji characters
+ * @returns Text with emojis converted to Markdown shortcodes
+ */
+export function convertEmojisToMarkdown(text: string): string {
+	// Reset lastIndex to ensure consistent behavior with multiple calls
+	regexPatterns.emoji.lastIndex = 0;
+	// For each emoji in the text, replace with its Markdown shortcode if available
+	return text.replace(regexPatterns.emoji, (match) => {
+		const shortcode = emojiToMarkdownMap.get(match);
+		return shortcode || match;
+	});
+}
+
+/**
+ * Converts Markdown shortcodes to emoji characters
+ * @param text The text containing Markdown shortcodes
+ * @returns Text with Markdown shortcodes converted to emojis
+ */
+export function convertMarkdownToEmojis(text: string): string {
+	// Reset lastIndex to ensure consistent behavior with multiple calls
+	regexPatterns.markdown.lastIndex = 0;
+	// Match Markdown shortcodes in the format :shortcode:
+	return text.replace(regexPatterns.markdown, (match, shortcode) => {
+		const emoji = markdownToEmojiMap.get(shortcode);
+		return emoji || match;
 	});
 }
 

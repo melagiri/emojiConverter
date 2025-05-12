@@ -4,6 +4,20 @@ All notable changes to the "emoji-converter" extension will be documented in thi
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [2.0.0] - 2025-05-12
+
+### Added
+
+- Full bidirectional conversion between all formats:
+  - Convert between any format (Unicode, HTML, Markdown, emoji) to any other format
+  - Example: Select Unicode escape sequences and convert directly to HTML entities
+  - Example: Select Markdown shortcodes and convert directly to Unicode escape sequences
+
+### Changed
+
+- Updated command names to reflect new bidirectional capabilities
+- Improved conversion logic for better format detection
+
 ## [1.1.0] - 2025-05-12
 
 ### Changed
