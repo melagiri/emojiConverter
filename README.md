@@ -1,8 +1,12 @@
 # Emoji Converter
 
-A VS Code extension that converts between various emoji formats including Unicode escape sequences, HTML entities, and Markdown shortcodes. This makes it easier for code formatters to process files containing emoji characters and ensures compatibility across different platforms and languages.
+A VS Code extension that provides full bidirectional conversion between various emoji formats including Unicode escape sequences, HTML entities, and Markdown shortcodes. This makes it easier for code formatters to process files containing emoji characters and ensures compatibility across different platforms and languages.
 
 ## Features
+
+### New in v2.0.0: Full Bidirectional Conversion
+
+This extension now supports direct conversion between any format and any other format. You can convert directly from Unicode to HTML, from Markdown to Unicode, or any other combination without intermediate steps.
 
 This extension provides commands to convert characters between multiple formats:
 
@@ -76,12 +80,13 @@ The quickest way to use this extension is through the format selection dialog:
 1. Press `Ctrl+Alt+Q` (or `Cmd+Alt+Q` on macOS)
 2. Select your desired target format from the dropdown menu:
 
-![Format Selection Dialog](https://raw.githubusercontent.com/melagiri/emoji-converter/main/images/format-dialog.png)
+![Format Selection Dialog](https://raw.githubusercontent.com/melagiri/emojiConverter/main/images/format-dialog.png)
 
 This dialog provides options for converting to all supported formats in one convenient place.
 
 ## Why Use This Extension?
 
+- **Full Bidirectional Conversion**: Convert directly between any formats without intermediate steps
 - **For Web Developers**: Convert between emojis and HTML entities for proper display in HTML
 - **For Documentation**: Convert emojis to Markdown shortcodes for compatibility with Markdown renderers
 - **For Source Code**: Convert emojis to Unicode escape sequences for compatibility with code formatters
