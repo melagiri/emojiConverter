@@ -379,7 +379,7 @@ function convertToMarkdownInEditor(editor: vscode.TextEditor) {
  * @param targetFormat The desired output format
  * @returns The converted text
  */
-function smartConvert(text: string, targetFormat: TextFormat): string {
+export function smartConvert(text: string, targetFormat: TextFormat): string {
 	// First, detect the source format
 	const sourceFormat = detectTextFormat(text);
 	
@@ -489,7 +489,7 @@ function smartConvert(text: string, targetFormat: TextFormat): string {
 /**
  * Enum representing different text formats
  */
-enum TextFormat {
+export enum TextFormat {
 	Unicode,
 	Html,
 	Markdown,
@@ -502,7 +502,7 @@ enum TextFormat {
  * @param text The text to analyze
  * @returns The detected format or Mixed if multiple formats are found
  */
-function detectTextFormat(text: string): TextFormat {
+export function detectTextFormat(text: string): TextFormat {
 	// Optimize by using early returns for common cases
 	
 	// Reset all regex patterns to ensure consistent behavior
