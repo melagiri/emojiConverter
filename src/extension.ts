@@ -139,7 +139,7 @@ function applyConversionInEditor(
 			location: vscode.ProgressLocation.Notification,
 			title: progressMessage || 'Converting text...',
 			cancellable: true
-		}, async (progress, token) => {
+                }, async (progress: vscode.Progress<{message?: string; increment?: number}>, token: vscode.CancellationToken) => {
 			try {
 				const text = document.getText();
 				
@@ -179,7 +179,7 @@ function applyConversionInEditor(
 							document.positionAt(text.length)
 						);
 						
-						await editor.edit(editBuilder => {
+                                                await editor.edit((editBuilder: vscode.TextEditorEdit) => {
 							editBuilder.replace(fullRange, convertedText);
 						});
 					} else {
@@ -196,7 +196,7 @@ function applyConversionInEditor(
 							document.positionAt(text.length)
 						);
 						
-						await editor.edit(editBuilder => {
+                                                await editor.edit((editBuilder: vscode.TextEditorEdit) => {
 							editBuilder.replace(fullRange, convertedText);
 						});
 					} else {
@@ -215,9 +215,9 @@ function applyConversionInEditor(
 			
 			// If text was changed, replace only the selected content
 			if (convertedText !== text) {
-				return editor.edit(editBuilder => {
-					editBuilder.replace(selection, convertedText);
-				});
+                                return editor.edit((editBuilder: vscode.TextEditorEdit) => {
+                                        editBuilder.replace(selection, convertedText);
+                                });
 			} else {
 				vscode.window.showInformationMessage('No changes were made to the selection');
 			}
