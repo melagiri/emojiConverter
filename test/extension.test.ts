@@ -201,6 +201,7 @@ describe('Emoji Converter Extension', () => {
     });
     it('should not throw on invalid unicode or html entity', () => {
       expect(() => convertUnicodeToEmojis('\\u{ZZZZ}')).to.not.throw();
+      expect(convertUnicodeToEmojis('\\u{ZZZZ}')).to.equal('\\u{ZZZZ}');
       expect(() => convertHtmlEntitiesToEmojis('&#notanumber;')).to.not.throw();
     });
     it('should allow composeConversions with no functions', () => {
