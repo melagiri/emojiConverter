@@ -76,7 +76,7 @@ The quickest way to use this extension is through the format selection dialog:
 1. Press `Ctrl+Alt+Q` (or `Cmd+Alt+Q` on macOS)
 2. Select your desired target format from the dropdown menu:
 
-![Format Selection Dialog](https://raw.githubusercontent.com/melagiri/emoji-converter/main/images/format-dialog.png)
+![Format Selection Dialog](https://raw.githubusercontent.com/melagiri/emojiConverter/main/images/format-dialog.png)
 
 This dialog provides options for converting to all supported formats in one convenient place.
 
