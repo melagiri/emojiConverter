@@ -12,6 +12,7 @@ import {
   emojiToMarkdownMap,
   markdownToEmojiMap
 } from '../src/conversion';
+import { smartConvert, detectTextFormat, TextFormat } from '../src/extension';
 
 describe('Emoji Converter Extension', () => {
   describe('convertEmojisToUnicode', () => {
@@ -225,6 +226,31 @@ describe('Emoji Converter Extension', () => {
         const shortcode = markdown.replace(/:/g, '');
         expect(normalizeEmoji(markdownToEmojiMap.get(shortcode) || '')).to.equal(normalizeEmoji(emoji));
       }
+    });
+  });
+
+  describe('smartConvert and detectTextFormat', () => {
+    it('should convert between supported formats', () => {
+      const emoji = '😀';
+      const unicode = '\\u{1F600}';
+      const html = '&#128512;';
+      const markdown = ':grinning:';
+
+      expect(smartConvert(emoji, TextFormat.Unicode)).to.equal(unicode);
+      expect(smartConvert(emoji, TextFormat.Html)).to.equal(html);
+      expect(smartConvert(emoji, TextFormat.Markdown)).to.equal(markdown);
+
+      expect(smartConvert(unicode, TextFormat.Emoji)).to.equal(emoji);
+      expect(smartConvert(html, TextFormat.Emoji)).to.equal(emoji);
+      expect(smartConvert(markdown, TextFormat.Emoji)).to.equal(emoji);
+    });
+
+    it('should identify text formats correctly', () => {
+      expect(detectTextFormat('😀')).to.equal(TextFormat.Emoji);
+      expect(detectTextFormat('\\u{1F600}')).to.equal(TextFormat.Unicode);
+      expect(detectTextFormat('&#128512;')).to.equal(TextFormat.Html);
+      expect(detectTextFormat(':grinning:')).to.equal(TextFormat.Markdown);
+      expect(detectTextFormat('😀 :grinning:')).to.equal(TextFormat.Mixed);
     });
   });
 });
