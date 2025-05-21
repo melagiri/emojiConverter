@@ -229,10 +229,18 @@ export function convertEmojisToUnicode(text: string): string {
 }
 
 export function convertUnicodeToEmojis(text: string): string {
-	regexPatterns.unicode.lastIndex = 0;
-	return text.replace(regexPatterns.unicode, (_, codePoint) => {
-		return String.fromCodePoint(parseInt(codePoint, 16));
-	});
+        regexPatterns.unicode.lastIndex = 0;
+        return text.replace(regexPatterns.unicode, (match, codePoint) => {
+                const parsed = parseInt(codePoint, 16);
+                if (Number.isFinite(parsed)) {
+                        try {
+                                return String.fromCodePoint(parsed);
+                        } catch {
+                                return match;
+                        }
+                }
+                return match;
+        });
 }
 
 export function convertEmojisToHtmlEntities(text: string): string {
